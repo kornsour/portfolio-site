@@ -23,9 +23,12 @@ test("homepage renders all main sections", async ({ page }) => {
 	}
 
 	// Experience shows the real title, projects show the AI-infra spotlight.
-	await expect(page.getByText("Manager, Platform Engineering / Developer Experience")).toBeVisible();
+	await expect(page.getByRole("heading", { name: /Manager, Platform Engineering/ })).toBeVisible();
 	await expect(page.getByText("AI Infrastructure").first()).toBeAttached();
 	await expect(page.getByRole("heading", { name: "inference-platform" })).toBeAttached();
+	// Public project link is shown; private-repo projects show a "Coming soon" marker.
+	await expect(page.getByRole("link", { name: /View site/ })).toBeAttached();
+	await expect(page.getByText("Coming soon").first()).toBeAttached();
 
 	// Contact
 	await expect(page.getByRole("link", { name: /ajkaiserauer@gmail\.com/ })).toBeAttached();

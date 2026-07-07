@@ -3,12 +3,14 @@ import * as portfolio from "./portfolio";
 import { about, alsoBuilt, person, projects, roles, skillGroups } from "./portfolio";
 
 describe("portfolio content", () => {
-	it("every project links to a kornsour GitHub repo", () => {
+	it("only surfaces public project links, never private repo links", () => {
 		for (const project of projects) {
-			expect(project.repo).toMatch(/^https:\/\/github\.com\/kornsour\//);
-		}
-		for (const item of alsoBuilt) {
-			expect(item.repo).toMatch(/^https:\/\/github\.com\/kornsour\//);
+			if (project.link) {
+				expect(project.link.url).toMatch(/^https:\/\//);
+				expect(project.link.label.length).toBeGreaterThan(0);
+				// Private GitHub repos are not surfaced while the code is being cleaned up.
+				expect(project.link.url).not.toMatch(/github\.com\/kornsour/);
+			}
 		}
 	});
 
@@ -31,6 +33,11 @@ describe("portfolio content", () => {
 		expect(everything).not.toMatch(/\+?1?[\s.-]?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/);
 	});
 
+	it("presents as Platform Engineering, not Developer Experience", () => {
+		const everything = JSON.stringify(portfolio);
+		expect(everything).not.toMatch(/developer experience/i);
+	});
+
 	it("has the required contact channels and resume path", () => {
 		expect(person.email).toBe("ajkaiserauer@gmail.com");
 		expect(person.linkedin).toContain("linkedin.com/in/");
@@ -44,7 +51,7 @@ describe("portfolio content", () => {
 		expect(everything).not.toMatch(/Director|Senior Manager/);
 	});
 
-	it("has non-empty about paragraphs, roles, and skill groups", () => {
+	it("has non-empty about paragraphs, roles, skills, and also-built breadth", () => {
 		expect(about.length).toBeGreaterThanOrEqual(2);
 		expect(roles.length).toBe(3);
 		for (const role of roles) {
@@ -52,6 +59,10 @@ describe("portfolio content", () => {
 		}
 		for (const group of skillGroups) {
 			expect(group.skills.length).toBeGreaterThan(0);
+		}
+		for (const item of alsoBuilt) {
+			expect(item.name.length).toBeGreaterThan(0);
+			expect(item.description.length).toBeGreaterThan(0);
 		}
 	});
 });

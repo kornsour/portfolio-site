@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 const description =
-	"Engineering and platform leader who builds the systems other engineers build on — platform engineering, developer experience, and AI infrastructure.";
+	"Engineering and platform leader who builds the systems other engineers build on. Platform engineering, Kubernetes, and AI infrastructure.";
 
 export const metadata: Metadata = {
 	metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),

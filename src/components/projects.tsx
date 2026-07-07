@@ -1,4 +1,4 @@
-import { ExternalLinkIcon, GitHubIcon } from "@/components/icons";
+import { ExternalLinkIcon } from "@/components/icons";
 import { Reveal } from "@/components/reveal";
 import { Section } from "@/components/section";
 import { alsoBuilt, projects } from "@/content/portfolio";
@@ -40,27 +40,21 @@ export function Projects() {
 									))}
 								</ul>
 								<div className="mt-5 flex items-center gap-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">
-									<a
-										href={project.repo}
-										rel="noreferrer"
-										target="_blank"
-										className={projectLinkClass}
-									>
-										<GitHubIcon className="size-4" />
-										Code
-										<span className="sr-only"> for {project.name}</span>
-									</a>
-									{project.live && (
+									{project.link ? (
 										<a
-											href={project.live}
+											href={project.link.url}
 											rel="noreferrer"
 											target="_blank"
 											className={projectLinkClass}
 										>
 											<ExternalLinkIcon className="size-4" />
-											Live site
+											{project.link.label}
 											<span className="sr-only"> for {project.name}</span>
 										</a>
+									) : (
+										<span className="text-sm font-medium text-zinc-400 dark:text-zinc-500">
+											Coming soon
+										</span>
 									)}
 								</div>
 							</article>
@@ -73,15 +67,8 @@ export function Projects() {
 					Also built:{" "}
 					{alsoBuilt.map((item, index) => (
 						<span key={item.name}>
-							<a
-								href={item.repo}
-								rel="noreferrer"
-								target="_blank"
-								className="font-medium text-zinc-700 underline decoration-zinc-300 underline-offset-2 transition-colors hover:text-zinc-950 hover:decoration-zinc-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-spartan-600 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-white"
-							>
-								{item.name}
-							</a>{" "}
-							({item.description}){index < alsoBuilt.length - 1 ? ", " : "."}
+							<span className="font-medium text-zinc-700 dark:text-zinc-300">{item.name}</span> (
+							{item.description}){index < alsoBuilt.length - 1 ? ", " : "."}
 						</span>
 					))}
 				</p>
