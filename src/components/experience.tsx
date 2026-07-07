@@ -13,7 +13,7 @@ export function Experience() {
 					>
 						<span
 							aria-hidden="true"
-							className="absolute top-1.5 -left-[5px] size-[9px] rounded-full bg-indigo-600 ring-4 ring-white dark:bg-indigo-400 dark:ring-zinc-950"
+							className="absolute top-1.5 -left-[5px] size-[9px] rounded-full bg-spartan-600 ring-4 ring-white dark:bg-spartan-400 dark:ring-zinc-950"
 						/>
 						<Reveal>
 							<p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">

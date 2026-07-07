@@ -9,6 +9,23 @@
 	--font-mono: var(--font-geist-mono);
 }
 
+/* Brand accent: "Spartan" green, anchored on the official Michigan State green
+   (#18453B) at the 700 shade, with a full tint/shade ramp tuned for AA contrast
+   in both light and dark mode. This is the single accent used across the site. */
+@theme {
+	--color-spartan-50: #eef6f2;
+	--color-spartan-100: #d6ebe3;
+	--color-spartan-200: #aed7c9;
+	--color-spartan-300: #78bca5;
+	--color-spartan-400: #4aa084;
+	--color-spartan-500: #2f8067;
+	--color-spartan-600: #1a5c49;
+	--color-spartan-700: #18453b;
+	--color-spartan-800: #143a32;
+	--color-spartan-900: #0f2e28;
+	--color-spartan-950: #081b17;
+}
+
 :root {
 	color-scheme: light;
 }
@@ -28,7 +45,7 @@ body {
 }
 
 ::selection {
-	@apply bg-indigo-600/20;
+	@apply bg-spartan-600/20;
 }
 
 /* Scroll-in reveal. `.reveal-hidden` is only ever added by JS (reveal.tsx), so

@@ -2,7 +2,7 @@ import { GitHubIcon, LinkedInIcon, MailIcon } from "@/components/icons";
 import { person } from "@/content/portfolio";
 
 const footerLinkClass =
-	"rounded-lg p-2 text-zinc-500 transition-colors hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:text-zinc-400 dark:hover:text-zinc-100";
+	"rounded-lg p-2 text-zinc-500 transition-colors hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-spartan-600 dark:text-zinc-400 dark:hover:text-zinc-100";
 
 export function SiteFooter() {
 	return (

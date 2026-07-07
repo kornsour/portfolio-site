@@ -4,7 +4,7 @@ import { Section } from "@/components/section";
 import { alsoBuilt, projects } from "@/content/portfolio";
 
 const projectLinkClass =
-	"inline-flex items-center gap-1.5 text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600 dark:text-zinc-400 dark:hover:text-white";
+	"inline-flex items-center gap-1.5 text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-spartan-600 dark:text-zinc-400 dark:hover:text-white";
 
 export function Projects() {
 	return (
@@ -16,12 +16,12 @@ export function Projects() {
 							<article
 								className={`flex h-full flex-col rounded-lg border bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:bg-zinc-900 ${
 									project.aiInfra
-										? "border-indigo-200 dark:border-indigo-900"
+										? "border-spartan-200 dark:border-spartan-900"
 										: "border-zinc-200 dark:border-zinc-800"
 								}`}
 							>
 								{project.aiInfra && (
-									<p className="mb-3 w-fit rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+									<p className="mb-3 w-fit rounded-full bg-spartan-50 px-2.5 py-0.5 text-xs font-medium text-spartan-700 dark:bg-spartan-950 dark:text-spartan-300">
 										AI Infrastructure
 									</p>
 								)}
@@ -77,7 +77,7 @@ export function Projects() {
 								href={item.repo}
 								rel="noreferrer"
 								target="_blank"
-								className="font-medium text-zinc-700 underline decoration-zinc-300 underline-offset-2 transition-colors hover:text-zinc-950 hover:decoration-zinc-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-white"
+								className="font-medium text-zinc-700 underline decoration-zinc-300 underline-offset-2 transition-colors hover:text-zinc-950 hover:decoration-zinc-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-spartan-600 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-white"
 							>
 								{item.name}
 							</a>{" "}

@@ -20,7 +20,7 @@ export default function OpengraphImage() {
 				fontFamily: "sans-serif",
 			}}
 		>
-			<div style={{ display: "flex", width: 96, height: 8, backgroundColor: "#4f46e5" }} />
+			<div style={{ display: "flex", width: 96, height: 8, backgroundColor: "#18453B" }} />
 			<div style={{ display: "flex", flexDirection: "column" }}>
 				<div style={{ fontSize: 72, fontWeight: 600, letterSpacing: "-0.02em" }}>{person.name}</div>
 				<div style={{ marginTop: 24, fontSize: 34, color: "#a1a1aa", lineHeight: 1.4 }}>

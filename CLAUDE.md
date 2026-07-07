@@ -43,8 +43,9 @@ public/resume.pdf          # replace the placeholder with the real resume
 
 ## Design language (keep it)
 
-"Modern Neutral": zinc surfaces, **indigo** as the only accent (used
-sparingly), 8px radius (`rounded-lg`), soft shadows, generous whitespace,
+"Modern Neutral": zinc surfaces, **Spartan green** as the only accent (the
+custom `spartan-*` palette in `globals.css`, anchored on Michigan State green
+#18453B; used sparingly), 8px radius (`rounded-lg`), soft shadows, generous whitespace,
 Geist type. Light + dark mode via a `.dark` class on `<html>` set before paint
 by the inline script in `layout.tsx`; the `dark:` variant is class-based
 (`@custom-variant` in `globals.css`). Motion is subtle only — the `Reveal`

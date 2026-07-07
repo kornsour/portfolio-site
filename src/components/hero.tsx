@@ -2,12 +2,12 @@ import { DownloadIcon, GitHubIcon, LinkedInIcon } from "@/components/icons";
 import { person } from "@/content/portfolio";
 
 const iconLinkClass =
-	"inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100";
+	"inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-spartan-600 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100";
 
 export function Hero() {
 	return (
 		<section aria-label="Introduction" className="py-20 sm:py-32">
-			<p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+			<p className="text-sm font-medium text-spartan-600 dark:text-spartan-400">
 				{person.title} · {person.location}
 			</p>
 			<h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
@@ -19,13 +19,13 @@ export function Hero() {
 			<div className="mt-10 flex flex-wrap items-center gap-3">
 				<a
 					href="#projects"
-					className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+					className="rounded-lg bg-spartan-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-spartan-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-spartan-600"
 				>
 					View work
 				</a>
 				<a
 					href="#contact"
-					className="rounded-lg border border-zinc-300 px-5 py-2.5 text-sm font-medium transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:border-zinc-700 dark:hover:bg-zinc-900"
+					className="rounded-lg border border-zinc-300 px-5 py-2.5 text-sm font-medium transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-spartan-600 dark:border-zinc-700 dark:hover:bg-zinc-900"
 				>
 					Get in touch
 				</a>

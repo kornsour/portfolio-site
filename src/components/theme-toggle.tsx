@@ -22,7 +22,7 @@ export function ThemeToggle() {
 			type="button"
 			onClick={toggle}
 			aria-label="Toggle color theme"
-			className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+			className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-spartan-600 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
 		>
 			<SunIcon className="hidden size-5 dark:block" />
 			<MoonIcon className="size-5 dark:hidden" />
