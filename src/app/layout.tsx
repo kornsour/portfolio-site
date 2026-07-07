@@ -41,7 +41,9 @@ export const metadata: Metadata = {
 };
 
 // Set the theme class before first paint to avoid a flash of the wrong theme.
-const themeInit = `(function(){try{var t=localStorage.getItem("theme");var d=t?t==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.classList.toggle("dark",d)}catch(e){}})();`;
+// Defaults to dark; a visitor's explicit toggle choice (stored in localStorage)
+// wins over that default.
+const themeInit = `(function(){try{var t=localStorage.getItem("theme");var d=t?t==="dark":true;document.documentElement.classList.toggle("dark",d)}catch(e){}})();`;
 
 export default function RootLayout({
 	children,

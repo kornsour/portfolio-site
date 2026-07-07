@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* Class-based dark mode: the inline script in layout.tsx sets `.dark` on <html>
-   before paint (honoring localStorage, falling back to system preference). */
+   before paint (defaults to dark; a stored toggle choice overrides it). */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
