@@ -1,58 +1,60 @@
-# TypeScript Template
+# andrewkaiserauer.com
 
-A batteries-included Next.js starter: TypeScript, Tailwind, Drizzle, **auth**
-(Google · Apple · email/password), **Stripe billing**, and a **local-Postgres →
-Neon** dev/prod split — with security defaults and agent tooling from the start.
+Personal portfolio for Andrew Kaiserauer — a single-page, fully static site
+built with Next.js (App Router), TypeScript, and Tailwind CSS v4. Derived from
+[`typescript-template`](https://github.com/kornsour) with the auth, database,
+and billing layers removed (see [ADR-0017](./docs/adr/0017-static-portfolio-strip-down.md)).
 
-## Quick start
-
-```bash
-bash scripts/rename-app.sh my-app   # name the project (or use the `rename-app` skill)
-pnpm bootstrap                      # .env + secret + local DB + schema
-pnpm dev                            # → http://localhost:3000
-```
-
-`pnpm bootstrap` needs a local Postgres (`brew install postgresql@17 && brew services
-start postgresql@17`). Email/password sign-up works immediately; verification and
-reset links print to the dev server console. Add Google/Apple/Stripe/email keys
-to `.env` when you want them — each is inert until configured.
-
-## Stack
-
-| Tool | Purpose |
-|------|---------|
-| [Next.js](https://nextjs.org) | React framework (App Router) |
-| [Tailwind CSS](https://tailwindcss.com) | Utility-first CSS |
-| [Drizzle ORM](https://orm.drizzle.team) | Type-safe SQL ORM |
-| Local Postgres / [Neon](https://neon.tech) | Dev database / serverless Postgres in prod |
-| [better-auth](https://better-auth.com) | Self-hosted auth (Google, Apple, email/password) |
-| [Stripe](https://stripe.com) | Subscription billing (env-flagged) |
-| [Biome](https://biomejs.dev) · [Vitest](https://vitest.dev) · [Playwright](https://playwright.dev) | Lint/format · unit · e2e |
-
-## Scripts
+## Run it locally
 
 ```bash
-pnpm bootstrap    # bootstrap a fresh clone
-pnpm dev          # dev server
-pnpm build        # production build
-pnpm check:fix    # lint + format
-pnpm test         # unit tests
-pnpm e2e          # e2e (local)
-pnpm db:local     # create local dev DB
-pnpm db:push      # push schema (dev)
-pnpm db:generate && pnpm db:migrate   # migrations (prod path)
+pnpm install
+pnpm dev        # → http://localhost:3000
 ```
 
-Migrations auto-apply on every Vercel build, and CI blocks a PR that changes
-the schema without one — see [`docs/maintenance/database-migrations.md`](./docs/maintenance/database-migrations.md).
+No database, no env vars, no services required. (`corepack enable` once so the
+pinned pnpm is used.)
 
-## Documentation
+## Edit content
 
-Start with [`docs/setup/getting-started.md`](./docs/setup/getting-started.md).
-The _why_ behind the stack is in [ADRs](./docs/adr); provisioning + operations in
-[`docs/cli-reference.md`](./docs/cli-reference.md); security in
-[`docs/security.md`](./docs/security.md). Agents: see [`CLAUDE.md`](./CLAUDE.md)
-and the `provision-app` / `rename-app` skills in `.claude/skills/`.
+Everything on the page — bio, experience, projects, skills, links — lives in
+one typed file: [`src/content/portfolio.ts`](./src/content/portfolio.ts).
+Components render whatever is there; you should never need to touch them for a
+content change.
 
-> Uses pnpm pinned via `packageManager`. Run `corepack enable` once so your local
-> pnpm matches the project ([ADR-0002](./docs/adr/0002-package-manager-pnpm-pinned.md)).
+- **Resume:** drop the PDF at [`public/resume.pdf`](./public/resume.pdf)
+  (a placeholder ships in the repo — replace it).
+- **Canonical domain:** defaults to `https://andrewkaiserauer.com` in
+  [`src/env.ts`](./src/env.ts); override with `NEXT_PUBLIC_APP_URL` for
+  previews.
+- Content changes are guarded by unit tests
+  ([`src/content/portfolio.test.ts`](./src/content/portfolio.test.ts)) — e.g.
+  no phone number ever ships, every project keeps a repo link.
+
+## Checks
+
+```bash
+pnpm check:fix    # Biome lint + format
+pnpm test         # Vitest (content-integrity tests)
+pnpm e2e          # Playwright smoke test (local only)
+pnpm build        # production build — all routes static
+```
+
+## Deploy to Vercel
+
+```bash
+vercel link
+vercel deploy --prod
+```
+
+Then point the domain at it (Cloudflare DNS, kept **DNS-only** until the
+certificate is issued):
+
+```bash
+vercel domains add andrewkaiserauer.com <project>   # prints the required record
+cf dns records create -z andrewkaiserauer.com --body '{"type":"A","name":"@","content":"76.76.21.21","ttl":1,"proxied":false}'
+vercel domains inspect andrewkaiserauer.com          # poll until valid
+```
+
+Use whatever record/target `vercel domains add` actually prints. No env vars
+are needed in Vercel; set `NEXT_PUBLIC_APP_URL` only if the domain changes.

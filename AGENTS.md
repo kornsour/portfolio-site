@@ -1,23 +1,16 @@
 # AGENTS.md
 
 This project's agent guidance lives in [`CLAUDE.md`](./CLAUDE.md) — read it first.
-It covers the stack, project structure, commands, auth, billing, database, and
-security conventions.
 
 Quick pointers for any coding agent (Claude Code, Codex, Cursor, …):
 
-- **Setup:** `pnpm bootstrap` (needs local Postgres). See `docs/setup/getting-started.md`.
+- **This is a fully static portfolio site.** No database, no auth, no server
+  actions, no env vars required. Don't reintroduce them
+  ([ADR-0017](./docs/adr/0017-static-portfolio-strip-down.md)).
+- **Content edits go in `src/content/portfolio.ts`**, never in components.
+  Never invent metrics, employers, titles, or credentials; no phone number.
+- **Setup:** `pnpm install && pnpm dev`.
 - **Before committing:** `pnpm check:fix && pnpm test`. A commit hook enforces this.
-- **Env:** add new vars to both `src/env.ts` and `.env.example`; import `env` from
-  `@/env`, never `process.env`.
-- **Auth:** gate protected code with `requireUser()` (`src/lib/auth/session.ts`),
-  not the middleware alone.
-- **DB:** edit `src/db/schema.ts`; `pnpm db:push` (dev) / `db:generate`+`db:migrate`
-  (prod). Never hand-edit `drizzle/`. CI fails a PR that changes `schema.ts`
-  without a matching migration file; Vercel builds auto-apply pending
-  migrations via `db:deploy`. See `docs/maintenance/database-migrations.md`.
 - **Foundational changes:** read the relevant ADR in `docs/adr/` first; add a
   superseding ADR when you change a decision.
-- **Provisioning:** use the CLIs in `docs/cli-reference.md`; the `provision-app`
-  skill orchestrates them.
-- **Security:** `docs/security.md`; run `/security-review` before shipping.
+- **Security:** `docs/security.md`; keep every route statically generated.
