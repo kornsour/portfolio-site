@@ -9,7 +9,7 @@ export const person = {
 	valueProp:
 		"I run a 33-person Platform Engineering org at Deloitte and build AI infrastructure hands-on, from multi-tenant Kubernetes platforms to LLM inference systems.",
 	title: "Manager, Platform Engineering, Deloitte",
-	location: "Detroit metro area · Open to remote",
+	location: "Detroit metro area & remote",
 	email: "ajkaiserauer@gmail.com",
 	linkedin: "https://www.linkedin.com/in/aj-kaiserauer/",
 	github: "https://github.com/kornsour",
