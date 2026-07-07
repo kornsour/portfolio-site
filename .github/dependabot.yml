@@ -21,10 +21,6 @@ updates:
         patterns:
           - "tailwindcss"
           - "@tailwindcss/*"
-      drizzle:
-        patterns:
-          - "drizzle-orm"
-          - "drizzle-kit"
       biome:
         patterns:
           - "@biomejs/*"
@@ -39,18 +35,6 @@ updates:
         patterns:
           - "zod"
           - "@t3-oss/*"
-          - "next-safe-action"
-      auth:
-        patterns:
-          - "better-auth"
-      db-driver:
-        patterns:
-          - "pg"
-          - "@types/pg"
-          - "@neondatabase/*"
-      stripe:
-        patterns:
-          - "stripe"
 
   - package-ecosystem: "github-actions"
     directory: "/"

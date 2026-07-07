@@ -1,35 +1,25 @@
 # Security posture
 
-The one-page summary of how this template defends itself, and the checklist to
-run before shipping. Read alongside the ADRs it links.
+This is a fully static, content-driven portfolio: no auth, no database, no
+server actions, no cookies, no user input. The attack surface is accordingly
+small. (The template's auth/DB/billing controls were removed with those
+subsystems — see [ADR-0017](./adr/0017-static-portfolio-strip-down.md).)
 
 ## What's built in
 
 | Area | Control | Where |
 |------|---------|-------|
-| SQL injection | Drizzle parameterizes every query. **Never** build SQL by string concatenation; if you must use `sql`, use its tagged-template placeholders, never interpolate user input. | `src/db/` |
-| AuthN | better-auth: hashed passwords (scrypt), secure/httpOnly/sameSite session cookies, CSRF protection on auth routes. | `src/lib/auth.ts`, [ADR-0012](./adr/0012-auth-better-auth.md) |
-| Password quality | Length ≥ 12 + common-password blocklist (NIST 800-63B), enforced on the form **and** server-side (`before` hook) — client checks can be bypassed. | `src/lib/password.ts`, `src/lib/auth/password-schema.ts` |
-| AuthZ | `requireUser()` in every protected page/action; the proxy cookie check is only an optimistic redirect, never the sole gate. | `src/lib/auth/session.ts`, `src/proxy.ts` |
-| Brute force | better-auth rate limiter enabled (stricter on auth paths). | `src/lib/auth.ts` |
 | Transport / headers | HSTS, `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`. | `next.config.ts`, [ADR-0009](./adr/0009-security-headers.md) |
-| XSS | Nonce-based CSP (strict in prod). | `src/proxy.ts`, [ADR-0014](./adr/0014-content-security-policy.md) |
-| Webhooks | Stripe signature verified against the raw body before any DB write. | `src/app/api/webhooks/stripe/route.ts` |
-| CSRF (actions) | Server actions are same-origin POSTs; `next-safe-action` validates input with Zod. | `src/lib/safe-action.ts` |
-| Secrets | All env vars validated at the boundary; server secrets never reach the client bundle. | `src/env.ts`, [ADR-0006](./adr/0006-type-safe-env.md) |
-| Secret leakage | `.gitignore` excludes `.env*` (only `.env.example` is committed). | `.gitignore` |
+| XSS | Static CSP header: `default-src 'self'`, no external script/connect/frame origins, `object-src 'none'`, `frame-ancestors 'none'`. `'unsafe-inline'` for scripts is required by static generation and accepted — the site holds no sessions or user data. | `next.config.ts`, [ADR-0017](./adr/0017-static-portfolio-strip-down.md) |
+| Injected content | All rendered content comes from the typed, committed `src/content/portfolio.ts` — nothing user-supplied. The two `dangerouslySetInnerHTML` uses (theme-init snippet, JSON-LD) are static strings built from that file. | `src/app/layout.tsx`, `src/app/page.tsx` |
+| Content guarantees | Unit tests assert no phone number appears in content and links point where expected. | `src/content/portfolio.test.ts` |
+| Secrets | No server secrets exist; the only env var is the public site URL, validated at the boundary. | `src/env.ts`, [ADR-0006](./adr/0006-type-safe-env.md) |
 
 ## Pre-deploy checklist
 
-1. `BETTER_AUTH_SECRET` is a fresh 32-byte random value per environment
-   (`openssl rand -base64 32`) — never reuse the dev secret in prod.
-2. `NEXT_PUBLIC_APP_URL` is the real HTTPS domain in prod (OAuth redirects and
-   email links depend on it).
-3. OAuth redirect URIs registered with Google/Apple match `<APP_URL>/api/auth/callback/<provider>`.
-4. Stripe webhook endpoint added in the Stripe dashboard with a **production**
-   signing secret (test-mode `whsec_` won't verify live events).
-5. Email verification is required in production — confirm `AWS_REGION` is set and
-   `EMAIL_FROM` is a verified SES identity so users can actually verify.
-6. Tighten the CSP in `src/proxy.ts` to your real origins; drop what you don't use.
-7. Run the **`/security-review`** skill on the diff before merging.
-8. Neon: use a pooled connection string and restrict DB access; rotate on leak.
+1. `NEXT_PUBLIC_APP_URL` matches the real HTTPS domain (or rely on the default).
+2. External links to third-party sites use `rel="noreferrer"` (they do — keep it
+   that way when adding new ones).
+3. Nothing personal beyond what's intended ships in `src/content/portfolio.ts`
+   or `public/` (`pnpm test` guards the phone-number case).
+4. Run the **`/security-review`** skill on the diff before merging significant changes.

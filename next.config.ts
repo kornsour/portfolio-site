@@ -1,14 +1,31 @@
 import type { NextConfig } from "next";
 
 /**
- * Baseline security headers applied to every response.
- * See docs/adr/0009-security-headers.md.
+ * Security headers applied to every response (see docs/adr/0009-security-headers.md).
  *
- * The Content-Security-Policy is NOT set here — it's a per-request nonce-based
- * policy set in `src/proxy.ts` (see docs/adr/0014-content-security-policy.md).
- * Tighten that policy to each app's real origins.
+ * The template's per-request nonce CSP (ADR-0014, src/proxy.ts) is gone: this
+ * site is fully static, and nonces require per-request rendering. A static CSP
+ * needs 'unsafe-inline' for Next's own bootstrap scripts — acceptable here
+ * because the site holds no sessions, cookies, or user data.
  */
+const isDev = process.env.NODE_ENV !== "production";
+
+const csp = [
+	`default-src 'self'`,
+	// 'unsafe-eval' is required by Turbopack HMR in dev only.
+	`script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+	`style-src 'self' 'unsafe-inline'`,
+	`img-src 'self' data:`,
+	`font-src 'self'`,
+	`connect-src 'self'`,
+	`frame-ancestors 'none'`,
+	`base-uri 'self'`,
+	`form-action 'self'`,
+	`object-src 'none'`,
+].join("; ");
+
 const securityHeaders = [
+	{ key: "Content-Security-Policy", value: csp },
 	{ key: "X-Content-Type-Options", value: "nosniff" },
 	{ key: "X-Frame-Options", value: "DENY" },
 	{ key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

@@ -1,6 +1,6 @@
 # ADR-0014: Add a nonce-based Content-Security-Policy in middleware
 
-- Status: Accepted
+- Status: Superseded by ADR-0017 (static-site CSP header in next.config.ts)
 - Date: 2026-07-05
 
 ## Context

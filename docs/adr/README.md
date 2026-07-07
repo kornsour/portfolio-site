@@ -33,15 +33,16 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0002](./0002-package-manager-pnpm-pinned.md) | Pin the package manager (pnpm 10.x via `packageManager`) | Accepted |
 | [0003](./0003-node-version-pinning.md) | Pin Node.js 24 LTS via `.nvmrc` and `engines` | Accepted |
 | [0004](./0004-biome-for-lint-and-format.md) | Use Biome for linting and formatting | Accepted |
-| [0005](./0005-data-layer-drizzle-neon.md) | Use Drizzle ORM with Neon serverless Postgres | Accepted |
+| 0005 | Use Drizzle ORM with Neon serverless Postgres | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
 | [0006](./0006-type-safe-env.md) | Validate environment variables at the boundary | Accepted |
-| [0007](./0007-server-actions-next-safe-action.md) | Use next-safe-action for Server Actions | Accepted |
+| 0007 | Use next-safe-action for Server Actions | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
 | [0008](./0008-e2e-local-only.md) | Run Playwright E2E locally, not in CI | Accepted |
 | [0009](./0009-security-headers.md) | Set baseline HTTP security headers | Accepted |
 | [0010](./0010-unit-testing-vitest.md) | Unit test with Vitest in a Node environment | Accepted |
-| [0011](./0011-local-postgres-neon-dual-driver.md) | Local Postgres in dev, Neon in prod (dual driver) | Accepted |
-| [0012](./0012-auth-better-auth.md) | Authentication with better-auth (self-hosted) | Accepted |
-| [0013](./0013-stripe-billing.md) | Stripe subscription billing, feature-flagged by env | Accepted |
-| [0014](./0014-content-security-policy.md) | Add a nonce-based Content-Security-Policy in middleware | Accepted |
-| [0015](./0015-legal-disclosures-scaffolding.md) | Legal-disclosure page scaffolding (ToS, Privacy, AUP, AI Disclosure, Cookies) | Accepted |
-| [0016](./0016-database-migration-automation.md) | Automated migration deploy, CI validation, and optional Neon preview branches | Accepted |
+| 0011 | Local Postgres in dev, Neon in prod (dual driver) | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
+| 0012 | Authentication with better-auth (self-hosted) | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
+| 0013 | Stripe subscription billing, feature-flagged by env | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
+| [0014](./0014-content-security-policy.md) | Add a nonce-based Content-Security-Policy in middleware | Superseded by [ADR-0017](./0017-static-portfolio-strip-down.md) |
+| 0015 | Legal-disclosure page scaffolding (ToS, Privacy, AUP, AI Disclosure, Cookies) | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
+| 0016 | Automated migration deploy, CI validation, and optional Neon preview branches | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
+| [0017](./0017-static-portfolio-strip-down.md) | Strip the template to a static portfolio site | Accepted |
