@@ -39,7 +39,7 @@ export function Hero() {
 					<GitHubIcon className="size-4" />
 					GitHub
 				</a>
-				<a href={person.resumeHref} download className={iconLinkClass}>
+				<a href={person.resumeHref} download="akaiserauer_resume.pdf" className={iconLinkClass}>
 					<DownloadIcon className="size-4" />
 					Download resume
 				</a>
