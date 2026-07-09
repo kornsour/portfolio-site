@@ -72,11 +72,12 @@ export interface Project {
 	description: string;
 	tech: readonly string[];
 	/**
-	 * A public link for the project — a generated/demo site, a live app, or a
-	 * published package. Omit while the repo is still private and nothing public
-	 * exists yet; the card shows a "Coming soon" marker instead.
+	 * Public links for the project — a generated/demo site, a live app, a
+	 * published package, and/or the public code repo. Omit while the repo is
+	 * still private and nothing public exists yet; the card shows a
+	 * "Coming soon" marker instead.
 	 */
-	link?: ProjectLink;
+	links?: readonly ProjectLink[];
 	/** AI-infrastructure projects get visual prominence in the grid. */
 	aiInfra?: boolean;
 }
@@ -87,10 +88,16 @@ export const projects: readonly Project[] = [
 		description:
 			"A platform for LLM inference serving: GPU scheduling, high-throughput serving with vLLM and KServe, and inference-aware autoscaling with KEDA on Kubernetes, with observability and cost/SLO discipline built in.",
 		tech: ["Python", "Kubernetes", "KServe", "KEDA", "Envoy AI Gateway"],
-		link: {
-			url: "https://kornsour.github.io/inference-platform/",
-			label: "View site",
-		},
+		links: [
+			{
+				url: "https://kornsour.github.io/inference-platform/",
+				label: "View site",
+			},
+			{
+				url: "https://github.com/kornsour/inference-platform",
+				label: "View code",
+			},
+		],
 		aiInfra: true,
 	},
 	{
@@ -98,6 +105,12 @@ export const projects: readonly Project[] = [
 		description:
 			"Inference performance engineering end to end: a device-aware benchmark harness (p50/p95 latency, tokens/sec, peak memory), measured KV-cache, batching, and int8-quantization optimizations, tensor-parallel serving, and a custom fused-RMSNorm CUDA kernel.",
 		tech: ["Python", "PyTorch", "CUDA"],
+		links: [
+			{
+				url: "https://github.com/kornsour/llm-inference-performance",
+				label: "View code",
+			},
+		],
 		aiInfra: true,
 	},
 	{
@@ -105,30 +118,48 @@ export const projects: readonly Project[] = [
 		description:
 			"An enterprise agentic system that triages an IT/Ops queue end to end: retrieves context, drafts grounded responses, and takes guarded actions behind human-approval gates, with every release gated by an evaluation harness.",
 		tech: ["Python", "FastAPI", "React", "TypeScript", "MCP"],
+		links: [
+			{
+				url: "https://github.com/kornsour/ops-triage-agent",
+				label: "View code",
+			},
+		],
 		aiInfra: true,
 	},
 	{
 		name: "micro-ceo",
 		description:
 			"An AI orchestrator that simulates a company hierarchy of LLM agents (CTO, VP Eng, engineers) that communicate, produce artifacts, and escalate decisions to the user.",
-		tech: ["TypeScript", "Electron", "LLM SDKs"],
+		tech: ["TypeScript", "Node.js", "LLM SDKs"],
+		links: [
+			{
+				url: "https://github.com/kornsour/micro-ceo",
+				label: "View code",
+			},
+		],
 	},
 	{
 		name: "design-system",
 		description:
 			"A published React + Tailwind v4 component library (@kornorg/design-system): neutral zinc surfaces, indigo accent, light and dark mode, distributed as an installable npm package.",
 		tech: ["TypeScript", "React", "Tailwind", "tsup"],
-		link: {
-			url: "https://www.npmjs.com/package/@kornorg/design-system",
-			label: "View on npm",
-		},
+		links: [
+			{
+				url: "https://www.npmjs.com/package/@kornorg/design-system",
+				label: "View on npm",
+			},
+			{
+				url: "https://github.com/kornsour/design-system",
+				label: "View code",
+			},
+		],
 	},
 	{
 		name: "deCuisine",
 		description:
 			"A full meal-planning and grocery SaaS: recipe discovery, weekly planner, auto-generated grocery lists, grocery-store integration, and subscription billing.",
 		tech: ["Next.js", "Prisma", "Postgres", "Stripe"],
-		link: { url: "https://decuisine.com", label: "Live site" },
+		links: [{ url: "https://decuisine.com", label: "Live site" }],
 	},
 ];
 
