@@ -131,12 +131,7 @@ export const projects: readonly Project[] = [
 		description:
 			"An AI orchestrator that simulates a company hierarchy of LLM agents (CTO, VP Eng, engineers) that communicate, produce artifacts, and escalate decisions to the user.",
 		tech: ["TypeScript", "Node.js", "LLM SDKs"],
-		links: [
-			{
-				url: "https://github.com/kornsour/micro-ceo",
-				label: "View code",
-			},
-		],
+		// Repo isn't ready to show yet — omit links so the card renders "Coming soon".
 	},
 	{
 		name: "design-system",
@@ -160,6 +155,20 @@ export const projects: readonly Project[] = [
 			"A full meal-planning and grocery SaaS: recipe discovery, weekly planner, auto-generated grocery lists, grocery-store integration, and subscription billing.",
 		tech: ["Next.js", "Prisma", "Postgres", "Stripe"],
 		links: [{ url: "https://decuisine.com", label: "Live site" }],
+	},
+	{
+		name: "cohabuild",
+		description:
+			"A coordination platform for construction: one shared source of truth for the GC, owner, and subcontractors, with an AI layer that flags cross-trade conflicts before they become rework.",
+		tech: ["Next.js", "Vercel"],
+		links: [{ url: "https://cohabuild.vercel.app", label: "Live site" }],
+	},
+	{
+		name: "empaca",
+		description:
+			"A trip packing-list app: build lists by category, share a trip with travel companions, reuse favorite templates, and let an AI assistant do the busywork.",
+		tech: ["Next.js", "Vercel"],
+		links: [{ url: "https://empaca.app", label: "Live site" }],
 	},
 ];
 
