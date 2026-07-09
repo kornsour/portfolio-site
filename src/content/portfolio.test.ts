@@ -3,14 +3,40 @@ import * as portfolio from "./portfolio";
 import { about, alsoBuilt, person, projects, roles, skillGroups } from "./portfolio";
 
 describe("portfolio content", () => {
-	it("only surfaces public project links, never private repo links", () => {
+	it("only surfaces valid https project links", () => {
 		for (const project of projects) {
-			if (project.link) {
-				expect(project.link.url).toMatch(/^https:\/\//);
-				expect(project.link.label.length).toBeGreaterThan(0);
-				// Private GitHub repos are not surfaced while the code is being cleaned up.
-				expect(project.link.url).not.toMatch(/github\.com\/kornsour/);
+			for (const link of project.links ?? []) {
+				expect(link.url).toMatch(/^https:\/\//);
+				expect(link.label.length).toBeGreaterThan(0);
 			}
+		}
+	});
+
+	it("links code repos only for repos that have been made public", () => {
+		// Keep in sync with the actual repo visibility on GitHub. SaaS repos
+		// (e.g. deCuisine) stay private and must never gain a repo link.
+		const publicRepos = [
+			"inference-platform",
+			"llm-inference-performance",
+			"ops-triage-agent",
+			"micro-ceo",
+			"design-system",
+		];
+		for (const project of projects) {
+			for (const link of project.links ?? []) {
+				const match = link.url.match(/github\.com\/kornsour\/([^/]+)/);
+				if (match) {
+					expect(publicRepos).toContain(match[1]);
+				}
+			}
+		}
+		const deCuisine = projects.find((p) => p.name === "deCuisine");
+		expect(deCuisine?.links?.some((l) => l.url.includes("github.com"))).toBe(false);
+	});
+
+	it("gives every AI infrastructure project a public code link", () => {
+		for (const project of projects.filter((p) => p.aiInfra)) {
+			expect(project.links?.some((l) => l.url.includes("github.com/kornsour/"))).toBe(true);
 		}
 	});
 

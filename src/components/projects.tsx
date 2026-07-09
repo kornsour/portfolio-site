@@ -40,17 +40,20 @@ export function Projects() {
 									))}
 								</ul>
 								<div className="mt-5 flex items-center gap-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">
-									{project.link ? (
-										<a
-											href={project.link.url}
-											rel="noreferrer"
-											target="_blank"
-											className={projectLinkClass}
-										>
-											<ExternalLinkIcon className="size-4" />
-											{project.link.label}
-											<span className="sr-only"> for {project.name}</span>
-										</a>
+									{project.links?.length ? (
+										project.links.map((link) => (
+											<a
+												key={link.url}
+												href={link.url}
+												rel="noreferrer"
+												target="_blank"
+												className={projectLinkClass}
+											>
+												<ExternalLinkIcon className="size-4" />
+												{link.label}
+												<span className="sr-only"> for {project.name}</span>
+											</a>
+										))
 									) : (
 										<span className="text-sm font-medium text-zinc-400 dark:text-zinc-500">
 											Coming soon
