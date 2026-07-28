@@ -19,7 +19,7 @@ export const person = {
 export const about: readonly string[] = [
 	"I build and lead platform engineering organizations. Today I run a 33-person Platform Engineering org at Deloitte, four squads with dedicated tech leads and product owners, where I treat the internal developer platform as a product serving thousands of engineers across the US Member Firm.",
 	"Outside work I build extensively in TypeScript and Python, including a growing body of AI infrastructure and agentic-system projects: LLM inference serving and performance engineering, enterprise agentic workflows, and a published design system.",
-	"I'm targeting senior roles in engineering management, platform engineering, AI forward-deployed and inference platform, and cloud and solutions architecture.",
+	"I'm targeting senior/staff roles in engineering management, platform engineering, AI forward-deployed, inference platform, and cloud/solutions architecture.",
 ];
 
 export interface Role {

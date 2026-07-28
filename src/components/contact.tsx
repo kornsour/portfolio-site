@@ -15,8 +15,8 @@ export function Contact() {
 						Interested in working together?
 					</h3>
 					<p className="mt-4 leading-relaxed text-zinc-600 dark:text-zinc-400">
-						I'm open to conversations about senior engineering leadership, platform and developer
-						experience, and AI infrastructure roles. The fastest way to reach me is email.
+						I'm open to conversations about senior engineering leadership, platform engineering,
+						cloud, and AI infrastructure roles. The fastest way to reach me is email.
 					</p>
 					<div className="mt-8 flex flex-wrap items-center gap-3">
 						<a
