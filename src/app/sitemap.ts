@@ -8,5 +8,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 			changeFrequency: "monthly",
 			priority: 1,
 		},
+		{
+			url: `${env.NEXT_PUBLIC_APP_URL}/writing/agent-guardrails`,
+			changeFrequency: "yearly",
+			priority: 0.8,
+		},
 	];
 }

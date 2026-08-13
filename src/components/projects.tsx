@@ -1,4 +1,5 @@
-import { ExternalLinkIcon } from "@/components/icons";
+import Link from "next/link";
+import { ArrowRightIcon, ExternalLinkIcon } from "@/components/icons";
 import { Reveal } from "@/components/reveal";
 import { Section } from "@/components/section";
 import { alsoBuilt, projects } from "@/content/portfolio";
@@ -39,25 +40,36 @@ export function Projects() {
 										</li>
 									))}
 								</ul>
-								<div className="mt-5 flex items-center gap-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+								<div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-zinc-100 pt-4 dark:border-zinc-800">
 									{project.links?.length ? (
-										project.links.map((link) => (
-											<a
-												key={link.url}
-												href={link.url}
-												rel="noreferrer"
-												target="_blank"
-												className={projectLinkClass}
-											>
-												<ExternalLinkIcon className="size-4" />
-												{link.label}
-												<span className="sr-only"> for {project.name}</span>
-											</a>
-										))
-									) : (
+										project.links.map((link) =>
+											link.internal ? (
+												<Link key={link.url} href={link.url} className={projectLinkClass}>
+													<ArrowRightIcon className="size-4" />
+													{link.label}
+													<span className="sr-only"> for {project.name}</span>
+												</Link>
+											) : (
+												<a
+													key={link.url}
+													href={link.url}
+													rel="noreferrer"
+													target="_blank"
+													className={projectLinkClass}
+												>
+													<ExternalLinkIcon className="size-4" />
+													{link.label}
+													<span className="sr-only"> for {project.name}</span>
+												</a>
+											),
+										)
+									) : project.note ? null : (
 										<span className="text-sm font-medium text-zinc-400 dark:text-zinc-500">
 											Coming soon
 										</span>
+									)}
+									{project.note && (
+										<span className="text-sm text-zinc-400 dark:text-zinc-500">{project.note}</span>
 									)}
 								</div>
 							</article>
