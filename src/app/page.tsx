@@ -14,7 +14,7 @@ const personJsonLd = {
 	"@type": "Person",
 	name: person.name,
 	email: `mailto:${person.email}`,
-	jobTitle: "Manager, Platform Engineering",
+	jobTitle: "Engineering Manager, Platform Engineering",
 	worksFor: { "@type": "Organization", name: "Deloitte" },
 	url: env.NEXT_PUBLIC_APP_URL,
 	sameAs: [person.linkedin, person.github],
