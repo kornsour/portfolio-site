@@ -43,6 +43,13 @@ yarn-error.log*
 # vercel
 .vercel
 
+# OpenTofu
+**/.terraform/*
+*.tfplan
+*.tfstate
+*.tfstate.*
+crash.log
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
