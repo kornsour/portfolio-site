@@ -20,19 +20,29 @@ in static-export mode. Verify them on every preview before promotion.
 
 ## AWS target
 
+The accepted AWS profile lives in `infra/aws`; `.github/workflows/aws-deploy.yml`
+builds, plans, uploads, and verifies it through GitHub OIDC. The protected
+`aws-production` environment trusts only `main`.
+
 After the Applications account is verified for CloudFront resource creation:
 
-1. Upload `out/` to a private, public-access-blocked S3 bucket. Preserve each
-   file's MIME metadata, including extensionless `icon` and `opengraph-image`
-   objects.
-2. Serve it only through CloudFront with signed origin access control requests.
-3. Reproduce every header in `vercel.json` with a CloudFront response-headers
-   policy.
-4. Rewrite clean nested paths to their exported `.html` objects with a
-   CloudFront Function if required; do not use Lambda@Edge. Ignore query strings
-   in the cache key for immutable exported metadata images.
-5. Validate the CloudFront staging URL before adding a custom domain or changing
-   DNS. Keep Vercel production available through the observation window.
+1. Merge the shared `portfolio-site-github-deploy` OIDC role and configure the
+   GitHub `aws-production` environment to allow only `main`.
+2. Dispatch **AWS static deploy** in `plan` mode and review the exact additions.
+3. Dispatch it in `apply` mode. The workflow uploads `out/` with explicit cache
+   and MIME metadata, invalidates CloudFront, waits for deployment, and verifies
+   the staging hostname.
+4. Decide the retained production domain, issue and validate its ACM certificate
+   in `us-east-1`, then set `aliases` and `acm_certificate_arn` together.
+5. Validate the custom domain before changing Cloudflare DNS. Keep Vercel
+   production available through the observation window.
+
+The profile uses an unversioned private bucket, AES-256 S3 encryption, signed
+OAC requests, `PriceClass_100`, a five-minute HTML default, immutable hashed
+assets, no query strings in cache keys, and one viewer-request CloudFront
+Function. It deliberately omits Lambda, Lambda@Edge, WAF, access-log delivery,
+Origin Shield, and provisioned capacity to avoid standing charges at this site's
+traffic level.
 
 Do not create this stack until the account-level CloudFront verification blocker
 is cleared; an S3-only partial deployment does not provide a usable staging URL.
@@ -60,6 +70,9 @@ want Cloudflare's proxy afterward, set its SSL/TLS mode to Full (strict) first.
 4. `robots.txt` and `sitemap.xml` reference the production domain.
 5. The CSP, HSTS, frame, MIME, referrer, DNS-prefetch, and permissions headers
    match the policy in `vercel.json`.
+6. The S3 origin rejects direct unauthenticated requests.
+7. CloudFront metrics show requests on the AWS distribution for the observation
+   window before Vercel domains and the project are removed.
 
 ## CI
 

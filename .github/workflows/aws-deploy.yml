@@ -1,0 +1,109 @@
+name: AWS static deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Plan or apply the production AWS static-hosting profile
+        required: true
+        default: plan
+        type: choice
+        options:
+          - plan
+          - apply
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: portfolio-site-aws-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: aws-production
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build static artifact
+        run: pnpm build
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.12.5
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: us-west-2
+          role-session-name: portfolio-site-${{ github.run_id }}
+          role-to-assume: arn:aws:iam::915275040938:role/portfolio-site-github-deploy
+      - name: Verify deployment identity
+        run: |
+          account_id="$(aws sts get-caller-identity --query Account --output text)"
+          test "$account_id" = "915275040938"
+      - name: Initialize OpenTofu
+        working-directory: infra/aws
+        run: tofu init -input=false
+      - name: Plan infrastructure
+        working-directory: infra/aws
+        run: tofu plan -input=false -out=portfolio.tfplan
+      - name: Apply infrastructure
+        if: inputs.mode == 'apply'
+        working-directory: infra/aws
+        run: tofu apply -input=false -auto-approve portfolio.tfplan
+      - name: Read deployment outputs
+        if: inputs.mode == 'apply'
+        id: aws
+        working-directory: infra/aws
+        run: |
+          echo "bucket=$(tofu output -raw bucket_name)" >> "$GITHUB_OUTPUT"
+          echo "bucket_domain=$(tofu output -raw bucket_regional_domain_name)" >> "$GITHUB_OUTPUT"
+          echo "distribution_id=$(tofu output -raw distribution_id)" >> "$GITHUB_OUTPUT"
+          echo "domain=$(tofu output -raw distribution_domain_name)" >> "$GITHUB_OUTPUT"
+      - name: Upload short-lived site objects
+        if: inputs.mode == 'apply'
+        run: |
+          aws s3 sync out "s3://${{ steps.aws.outputs.bucket }}" \
+            --delete \
+            --cache-control "public,max-age=300,must-revalidate" \
+            --exclude "_next/static/*" \
+            --exclude "icon" \
+            --exclude "opengraph-image"
+      - name: Upload immutable Next.js assets
+        if: inputs.mode == 'apply'
+        run: |
+          aws s3 sync out/_next/static "s3://${{ steps.aws.outputs.bucket }}/_next/static" \
+            --delete \
+            --cache-control "public,max-age=31536000,immutable"
+      - name: Upload metadata images with explicit MIME types
+        if: inputs.mode == 'apply'
+        run: |
+          aws s3 cp out/icon "s3://${{ steps.aws.outputs.bucket }}/icon" \
+            --content-type image/png \
+            --cache-control "public,max-age=86400"
+          aws s3 cp out/opengraph-image "s3://${{ steps.aws.outputs.bucket }}/opengraph-image" \
+            --content-type image/png \
+            --cache-control "public,max-age=86400"
+      - name: Invalidate and wait for CloudFront
+        if: inputs.mode == 'apply'
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ steps.aws.outputs.distribution_id }}" \
+            --paths "/*"
+          aws cloudfront wait distribution-deployed \
+            --id "${{ steps.aws.outputs.distribution_id }}"
+      - name: Verify staging routes and headers
+        if: inputs.mode == 'apply'
+        env:
+          S3_ORIGIN: https://${{ steps.aws.outputs.bucket_domain }}
+          STAGING_ORIGIN: https://${{ steps.aws.outputs.domain }}
+        run: ./scripts/verify-aws-static.sh
