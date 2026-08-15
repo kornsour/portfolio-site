@@ -37,7 +37,7 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0006](./0006-type-safe-env.md) | Validate environment variables at the boundary | Accepted |
 | 0007 | Use next-safe-action for Server Actions | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
 | [0008](./0008-e2e-local-only.md) | Run Playwright E2E locally, not in CI | Accepted |
-| [0009](./0009-security-headers.md) | Set baseline HTTP security headers | Accepted |
+| [0009](./0009-security-headers.md) | Set baseline HTTP security headers | Accepted; header delivery superseded by [ADR-0018](./0018-portable-static-export.md) |
 | [0010](./0010-unit-testing-vitest.md) | Unit test with Vitest in a Node environment | Accepted |
 | 0011 | Local Postgres in dev, Neon in prod (dual driver) | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
 | 0012 | Authentication with better-auth (self-hosted) | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
@@ -45,4 +45,5 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0014](./0014-content-security-policy.md) | Add a nonce-based Content-Security-Policy in middleware | Superseded by [ADR-0017](./0017-static-portfolio-strip-down.md) |
 | 0015 | Legal-disclosure page scaffolding (ToS, Privacy, AUP, AI Disclosure, Cookies) | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
 | 0016 | Automated migration deploy, CI validation, and optional Neon preview branches | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
-| [0017](./0017-static-portfolio-strip-down.md) | Strip the template to a static portfolio site | Accepted |
+| [0017](./0017-static-portfolio-strip-down.md) | Strip the template to a static portfolio site | Accepted; header delivery superseded by [ADR-0018](./0018-portable-static-export.md) |
+| [0018](./0018-portable-static-export.md) | Deploy a portable static export | Accepted |

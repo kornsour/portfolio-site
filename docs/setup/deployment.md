@@ -1,4 +1,7 @@
-# Deployment (Vercel + Cloudflare DNS)
+# Deployment (portable static export)
+
+`pnpm build` writes the complete deployable site to `out/`. There is no Next.js
+server artifact and no request-time application compute.
 
 ## First deploy
 
@@ -11,6 +14,28 @@ vercel deploy --prod     # production
 No environment variables are required — the canonical URL defaults to
 `https://andrewkaiserauer.com` in `src/env.ts`. Set `NEXT_PUBLIC_APP_URL` in
 Vercel only if that ever changes.
+
+`vercel.json` applies the production security headers that Next.js cannot emit
+in static-export mode. Verify them on every preview before promotion.
+
+## AWS target
+
+After the Applications account is verified for CloudFront resource creation:
+
+1. Upload `out/` to a private, public-access-blocked S3 bucket. Preserve each
+   file's MIME metadata, including extensionless `icon` and `opengraph-image`
+   objects.
+2. Serve it only through CloudFront with signed origin access control requests.
+3. Reproduce every header in `vercel.json` with a CloudFront response-headers
+   policy.
+4. Rewrite clean nested paths to their exported `.html` objects with a
+   CloudFront Function if required; do not use Lambda@Edge. Ignore query strings
+   in the cache key for immutable exported metadata images.
+5. Validate the CloudFront staging URL before adding a custom domain or changing
+   DNS. Keep Vercel production available through the observation window.
+
+Do not create this stack until the account-level CloudFront verification blocker
+is cleared; an S3-only partial deployment does not provide a usable staging URL.
 
 ## Custom domain (Cloudflare DNS)
 
@@ -33,8 +58,12 @@ want Cloudflare's proxy afterward, set its SSL/TLS mode to Full (strict) first.
 2. `/resume.pdf` serves the real resume (replace the committed placeholder).
 3. OG card renders (paste the URL into a LinkedIn/Slack preview).
 4. `robots.txt` and `sitemap.xml` reference the production domain.
+5. The CSP, HSTS, frame, MIME, referrer, DNS-prefetch, and permissions headers
+   match the policy in `vercel.json`.
 
 ## CI
 
-`.github/workflows/ci.yml` runs Biome, `tsc`, Vitest, and `pnpm build` on every
-push/PR. E2E runs locally only ([ADR-0008](../adr/0008-e2e-local-only.md)).
+`.github/workflows/ci.yml` runs Biome, `tsc`, Vitest, and the static export via
+`pnpm build` on every push/PR. `src/deployment-config.test.ts` prevents the
+export mode and Vercel rollback headers from drifting. E2E runs locally only
+([ADR-0008](../adr/0008-e2e-local-only.md)).
