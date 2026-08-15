@@ -36,11 +36,14 @@ content change.
 ```bash
 pnpm check:fix    # Biome lint + format
 pnpm test         # Vitest (content-integrity tests)
-pnpm e2e          # Playwright smoke test (local only)
-pnpm build        # production build — all routes static
+pnpm e2e          # Playwright smoke test (local only; set E2E_PORT if 3000 is busy)
+pnpm build        # portable static export → out/
 ```
 
-## Deploy to Vercel
+## Deploy
+
+Every build is a portable static export. Vercel remains production during the
+AWS migration and applies the security headers in `vercel.json`.
 
 ```bash
 vercel link
@@ -58,3 +61,8 @@ vercel domains inspect andrewkaiserauer.com          # poll until valid
 
 Use whatever record/target `vercel domains add` actually prints. No env vars
 are needed in Vercel; set `NEXT_PUBLIC_APP_URL` only if the domain changes.
+
+The AWS target is a private S3 origin behind CloudFront with no Lambda runtime.
+See [`docs/setup/deployment.md`](./docs/setup/deployment.md) and
+[ADR-0018](./docs/adr/0018-portable-static-export.md). Do not change production
+DNS until the CloudFront staging deployment is verified and observed.
