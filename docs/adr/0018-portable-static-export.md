@@ -1,6 +1,6 @@
 # ADR-0018: Deploy a portable static export
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-15
 
 ## Context

@@ -46,4 +46,4 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | 0015 | Legal-disclosure page scaffolding (ToS, Privacy, AUP, AI Disclosure, Cookies) | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
 | 0016 | Automated migration deploy, CI validation, and optional Neon preview branches | Removed by [ADR-0017](./0017-static-portfolio-strip-down.md) |
 | [0017](./0017-static-portfolio-strip-down.md) | Strip the template to a static portfolio site | Accepted; header delivery superseded by [ADR-0018](./0018-portable-static-export.md) |
-| [0018](./0018-portable-static-export.md) | Deploy a portable static export | Proposed |
+| [0018](./0018-portable-static-export.md) | Deploy a portable static export | Accepted |
