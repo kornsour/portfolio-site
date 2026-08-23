@@ -1,0 +1,25 @@
+{
+  "name": "portfolio-edge",
+  "main": "worker.js",
+  "compatibility_date": "2026-08-23",
+  "assets": {
+    "directory": "../../out",
+    "binding": "ASSETS",
+    // run_worker_first so the Worker can attach security headers to every
+    // response; a static export cannot emit headers on its own.
+    "run_worker_first": true,
+    // Serves /writing/agent-guardrails from agent-guardrails.html, matching the
+    // CloudFront rewrite function the AWS plan would have used.
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  // Routes over PROXIED records, not custom_domain: the apex already has an A
+  // record and Cloudflare refuses to create a custom-domain record over
+  // existing DNS. Routes are inert until the records are proxied, which makes
+  // the cutover a single reversible DNS toggle.
+  "routes": [
+    { "pattern": "andrewkaiserauer.com/*", "zone_name": "andrewkaiserauer.com" },
+    { "pattern": "www.andrewkaiserauer.com/*", "zone_name": "andrewkaiserauer.com" }
+  ],
+  "observability": { "enabled": true }
+}
