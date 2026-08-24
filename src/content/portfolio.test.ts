@@ -76,6 +76,7 @@ describe("portfolio content", () => {
 		expect(person.linkedin).toContain("linkedin.com/in/");
 		expect(person.github).toBe("https://github.com/kornsour");
 		expect(person.resumeHref).toBe("/resume.pdf");
+		expect(person.resumeFileName).toMatch(/\.pdf$/);
 	});
 
 	it("uses the functional title and never claims a higher level", () => {
