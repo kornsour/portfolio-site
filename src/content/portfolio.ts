@@ -17,6 +17,7 @@ export const person = {
 	linkedin: "https://www.linkedin.com/in/aj-kaiserauer/",
 	github: "https://github.com/kornsour",
 	resumeHref: "/resume.pdf",
+	resumeFileName: "akaiserauer_resume.pdf",
 } as const;
 
 export const about: readonly string[] = [

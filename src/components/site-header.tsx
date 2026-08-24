@@ -1,3 +1,4 @@
+import { DownloadIcon } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { nav, person } from "@/content/portfolio";
 
@@ -26,6 +27,14 @@ export function SiteHeader() {
 							))}
 						</ul>
 					</nav>
+					<a
+						href={person.resumeHref}
+						download={person.resumeFileName}
+						className="ml-1 inline-flex items-center gap-1.5 rounded-lg bg-spartan-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-spartan-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-spartan-600"
+					>
+						<DownloadIcon className="size-4" />
+						Resume
+					</a>
 					<ThemeToggle />
 				</div>
 			</div>
