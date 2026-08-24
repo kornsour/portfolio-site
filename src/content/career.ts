@@ -24,6 +24,24 @@
  *   3. Expired credentials carry their expiry. An undated expired certification
  *      reads as a current one, and every claim here has to survive a background
  *      check and a deep-dive interview question.
+ *   4. CERTIFICATIONS ARE VERIFIED AGAINST CREDLY, NOT LINKEDIN.
+ *      https://www.credly.com/earner/dashboard (his login) is the issuers' own
+ *      system of record; LinkedIn is a copy he maintains by hand, and on
+ *      2026-08-22 it was wrong in both directions at once — it showed the SAFe 5
+ *      POPM as expired Feb 2024 when Credly has it valid to Apr 2027, and it had
+ *      no entry at all for a Deloitte architecture credential issued Nov 2024.
+ *      A stale mirror gets RENEWALS wrong, which is the direction that costs him
+ *      a live credential on his own resume. Re-check here before editing any
+ *      certification, and take the earner dashboard's dates over any other
+ *      source including this file.
+ *      Two traps on that site, both of which will hand you fiction:
+ *        - /earner/dashboard renders his ONE Deloitte badge and then a long
+ *          "Explore other badges" CAROUSEL of ~30 credentials he does NOT hold
+ *          (SAFe Fellow, AWS Solutions Architect Professional, and so on).
+ *          Reading that as his is how you invent a career.
+ *        - the earned list is at /users/<slug>/edit/badges/credly and the count
+ *          ("Credly (6)") is the check: if you have more rows than that, you are
+ *          reading the carousel.
  */
 
 export interface YearMonth {
@@ -292,32 +310,53 @@ export const skillRows: readonly { id: string; label: string; text: string }[] =
 
 export const certifications: readonly Certification[] = [
 	{
-		// LinkedIn, verified 2026-08-22: issued Apr 2021, expired Apr 2024.
+		// Credly, read 2026-08-22 — CURRENT, and LinkedIn is wrong about it.
+		// LinkedIn shows "Expired Feb 2024"; Credly, which is the issuer's own
+		// system of record, shows it valid to Apr 9 2027. Trusting LinkedIn here
+		// cost him a live credential on his own resume. Renewals are exactly what
+		// a stale mirror gets wrong, and this is the direction that hurts.
+		name: "Certified SAFe 5 Product Owner/Product Manager",
+		issued: { year: 2023, month: 2 },
+		expires: { year: 2027, month: 4 },
+		status: "active",
+	},
+	{
+		// Credly, read 2026-08-22: issued Nov 1 2024. Current, does not expire.
+		// It was on NEITHER the resume nor LinkedIn — an employer-issued
+		// architecture credential, earned after the last resume revision, simply
+		// never written down anywhere the system could see it.
+		name: "Deloitte Certified Architect Level 1",
+		issued: { year: 2024, month: 11 },
+		expires: null,
+		status: "active",
+	},
+	{
+		// Credly, read 2026-08-22: issued May 23 2020. AZ-900 does not expire.
+		// Official name carries the "Microsoft Certified:" prefix.
+		name: "Microsoft Certified: Azure Fundamentals",
+		issued: { year: 2020, month: 5 },
+		expires: null,
+		status: "active",
+	},
+	{
+		// Credly, read 2026-08-22: expired Apr 12 2024. Issue date Apr 2021 from
+		// LinkedIn; the two agree on the expiry.
 		name: "AWS Certified DevOps Engineer – Professional",
 		issued: { year: 2021, month: 4 },
 		expires: { year: 2024, month: 4 },
 		status: "expired",
 	},
 	{
-		// OPEN QUESTION for Andrew: no issue date on file. Renders undated.
-		name: "AWS Solutions Architect – Associate",
+		// Credly, read 2026-08-22. He holds this badge TWICE — expired Dec 15
+		// 2020 and again Jan 25 2024, i.e. earned, renewed, lapsed again. Only
+		// the later one is stated: two expired instances of one credential is a
+		// certification history, not a qualification, and the resume states the
+		// most recent. Official name includes "Certified", which the previous
+		// hand-written entry dropped.
+		name: "AWS Certified Solutions Architect – Associate",
 		issued: null,
-		expires: null,
-		status: "unknown",
-	},
-	{
-		// LinkedIn, verified 2026-08-22: issued Feb 2023, expired Feb 2024.
-		name: "Certified SAFe 5 Product Owner/Product Manager",
-		issued: { year: 2023, month: 2 },
-		expires: { year: 2024, month: 2 },
+		expires: { year: 2024, month: 1 },
 		status: "expired",
-	},
-	{
-		// OPEN QUESTION for Andrew: no issue date on file. Renders undated.
-		name: "Azure Fundamentals",
-		issued: null,
-		expires: null,
-		status: "unknown",
 	},
 ];
 
