@@ -80,8 +80,11 @@ describe("portfolio content", () => {
 	});
 
 	it("uses the functional title and never claims a higher level", () => {
-		// Deloitte's internal HR title ("Lead Infrastructure Engineer II") describes
-		// almost none of the actual scope — 33 reports across four squads — so the
+		// Deloitte's internal HR title is simply "Manager" — the Deloitte rank,
+		// with no discipline attached (confirmed 2026-08-22; an earlier version of
+		// this comment claimed "Lead Infrastructure Engineer II", which was
+		// wrong). A bare rank describes almost none of the actual scope — 33
+		// reports across four squads — so the
 		// site uses the functional title. The HR title is disclosed on application
 		// forms and background checks, which is where verification happens; it is
 		// deliberately not published here, and the level is never inflated past
@@ -100,9 +103,12 @@ describe("portfolio content", () => {
 	});
 
 	it("shows Deloitte as one continuous role, not a title change", () => {
-		// The HR title has been "Manager, Cloud Architecture" since 2021 and still
-		// is; splitting it implied he left that title in 2022. Site and resume
-		// must agree on one unbroken entry.
+		// He has held the Deloitte "Manager" rank continuously since Jan 2021
+		// (LinkedIn splits it into "Manager, Cloud Architecture" Jan 2021–Jan 2022
+		// and "Manager, Platform Engineering" Jan 2022–present, but that is a
+		// change of assignment, not of employment). Splitting it here implied he
+		// left in 2022. Site and resume must agree on one unbroken entry, and both
+		// now derive it from the single `deloitte` position in career.ts.
 		const deloitte = roles.filter((r) => r.company === "Deloitte");
 		expect(deloitte.length).toBe(1);
 		expect(deloitte[0]?.period).toBe("2021 – Present");

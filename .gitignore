@@ -53,3 +53,9 @@ crash.log
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Generated resume cuts the SITE does not offer (currently the IC cut), written
+# by `pnpm resume`. Deliberately NOT under public/: this is a static export, so
+# anything in public/ is copied into out/ and served at a guessable URL whether
+# or not a link points at it. Regenerate with `pnpm resume` and attach by hand.
+/resumes/

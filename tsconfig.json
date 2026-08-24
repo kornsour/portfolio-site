@@ -10,6 +10,12 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    // The resume generator (scripts/generate-resume.mts + src/lib/resume/) runs
+    // on bare Node with built-in TypeScript stripping, which requires the real
+    // file extension in the specifier. Safe here because `noEmit` is true — TS
+    // never has to rewrite these paths — and nothing in the Next app graph uses
+    // a `.ts` specifier.
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",

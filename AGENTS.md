@@ -8,7 +8,12 @@ Quick pointers for any coding agent (Claude Code, Codex, Cursor, …):
   actions, no env vars required. Don't reintroduce them
   ([ADR-0017](./docs/adr/0017-static-portfolio-strip-down.md)).
 - **Content edits go in `src/content/portfolio.ts`**, never in components.
-  Never invent metrics, employers, titles, or credentials; no phone number.
+  Never invent metrics, employers, titles, or credentials; no phone number on
+  the site.
+- **Career facts go in `src/content/career.ts`** — employment dates, job titles,
+  role bullets, skills, certifications, education. The site derives from it and
+  `pnpm resume` regenerates `public/resume.pdf` from it. Never hand-edit that
+  PDF; a unit test fails the moment it stops matching the data.
 - **Setup:** `pnpm install && pnpm dev`.
 - **Before committing:** `pnpm check:fix && pnpm test`. A commit hook enforces this.
 - **Foundational changes:** read the relevant ADR in `docs/adr/` first; add a

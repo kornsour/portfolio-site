@@ -24,11 +24,74 @@ there. A content change must never require touching a component; if it does,
 fix the component. Content invariants (no phone number, repo links present,
 job title not inflated) are enforced by `src/content/portfolio.test.ts`.
 
+**One fact, one place — `src/content/career.ts`.** Anything the RESUME also
+states — employment dates, job titles, role bullets, the org size, skills,
+certifications, education — is written there once. `portfolio.ts` derives the
+site from it (`person.title`, `roles`, periods, `about`'s numbers) and
+`scripts/generate-resume.mts` renders `public/resume.pdf` from it. This exists
+because the two used to be independent hand-maintained copies of one career and
+they drifted: the site said the GE years began in 2015, the resume said Jul
+2016, and a comment in `portfolio.ts` asserted a Deloitte HR title that was
+simply wrong. Site PROSE (headline, value prop, about paragraphs, project
+descriptions) still belongs in `portfolio.ts`.
+
+**Never invent, embellish, or infer a biographical fact.** If a fact is needed
+and is not in `career.ts`, ask Andrew — do not fill the gap. Every claim has to
+survive a background check and a deep-dive interview question. Two consequences
+are already encoded: an expired certification carries its expiry (an undated one
+reads as current), and `independentEngineering` is personal work that must never
+be presented as professional experience — no employer, no dates, its own
+heading, always below the employment history, in every variant.
+
+## The resume
+
+```bash
+pnpm resume          # regenerate both cuts from src/content/career.ts
+pnpm resume:ic       # the IC cut only
+pnpm resume:check    # fail if the committed public/resume.pdf is stale
+pnpm resume:text     # print the text layer an ATS would extract
+```
+
+Never hand-edit `public/resume.pdf` — a unit test fails the moment the committed
+file stops being byte-identical to what the data generates. That test is the
+whole anti-drift mechanism, which is why the generator is deterministic (no
+`/CreationDate`, no ids, no clock).
+
+- **Generator: hand-rolled, zero dependencies** (`src/lib/resume/`). Headless
+  Chrome was rejected — a browser download in CI to typeset ~55 lines, and it
+  re-encodes fonts on the way out, which is the exact thing an ATS-parseable
+  resume must not do. `pdfkit` / `@react-pdf/renderer` were rejected as a font
+  engine plus a dozen transitive packages for the same job. It runs on Node 24's
+  built-in TypeScript stripping — hence the explicit `.ts` import specifiers in
+  `src/lib/resume/` and `allowImportingTsExtensions` in `tsconfig.json`.
+- **ATS-parseable means base-14 fonts, `WinAnsiEncoding`, nothing embedded,
+  nothing subsetted, single column, boring section headings, text in reading
+  order.** A character WinAnsi cannot represent is a hard error, not a silent
+  `?` — that is why an arrow became "to" while `×` and `²` were checked against
+  the encoding table and kept.
+- **The font width tables are calibrated, not guessed** — read the header of
+  `font-metrics.ts`. They reproduce two spans poppler independently measured out
+  of the previous resume, landing on exactly 9pt and 14pt. Recalibrate before
+  trusting any change to them: a wrong table does not fail, it just wraps lines
+  in the wrong place.
+- **One page is enforced structurally.** `fitResume()` picks the largest body
+  size in a narrow band that fits and throws otherwise; when it throws, cut a
+  bullet rather than shrinking the type further.
+- **Two cuts, one published.** `public/resume.pdf` is the leadership cut and the
+  only one the site offers. The IC / AI-infrastructure cut reorders and
+  reweights the *same* verified bullets and is written to `resumes/`
+  (gitignored, attached to applications by hand). It must never be emitted into
+  `public/`: this is a static export, so a file there is served at a guessable
+  URL whether or not anything links to it — "unlinked" is not "unpublished",
+  and a test enforces it.
+
 ## Project Structure
 
 ```
 src/
-├── content/portfolio.ts   # ALL content + its test
+├── content/career.ts      # CANONICAL career record (dates, titles, bullets, certs)
+├── content/portfolio.ts   # site content; derives career facts from career.ts
+├── lib/resume/            # zero-dependency PDF generator + text extractor
 ├── env.ts                 # NEXT_PUBLIC_APP_URL (defaults to https://andrewkaiserauer.com)
 ├── app/
 │   ├── layout.tsx         # fonts, metadata, theme-init inline script
@@ -38,7 +101,9 @@ src/
 └── components/            # site-header, hero, about, experience, projects,
                            # skills, contact, site-footer, theme-toggle,
                            # section, reveal, icons
-public/resume.pdf          # replace the placeholder with the real resume
+scripts/generate-resume.mts  # `pnpm resume`
+public/resume.pdf          # GENERATED — do not hand-edit
+resumes/                   # GENERATED, gitignored — cuts the site does not offer
 ```
 
 ## Design language (keep it)
@@ -68,6 +133,7 @@ pnpm dev              # dev server (Turbopack)
 pnpm build            # production build (all static, no env needed)
 pnpm check[:fix]      # Biome lint+format
 pnpm test             # unit tests (Vitest)
+pnpm resume           # regenerate the resume PDFs from src/content/career.ts
 pnpm e2e[:ui]         # E2E (Playwright, local)
 ```
 
