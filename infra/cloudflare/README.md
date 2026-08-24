@@ -9,12 +9,29 @@ built it for AWS Lambda; this Worker only routes.
 
 ## Deploying
 
-Build first — `wrangler` uploads `out`, which is build output and is not
-committed:
+**This is automatic.** `.github/workflows/cloudflare-deploy.yml` builds and
+deploys on every push to `main`, once CI has gone green on that commit. It
+needs two repository secrets, `CLOUDFLARE_API_TOKEN` and
+`CLOUDFLARE_ACCOUNT_ID`; without them the workflow fails loudly rather than
+skipping.
+
+It did not always work that way, and the failure mode is worth knowing because
+nothing about it looks broken: from the Cloudflare cutover until 2026-08-24 the
+upload was a manual step nobody was prompted to run, so `main` went green while
+the site kept serving an older build. It was two commits stale before anyone
+noticed. That is why the workflow ends by comparing the bytes it just built
+against the bytes actually being served (`scripts/verify-cloudflare-static.sh`)
+— a route-and-header sweep alone passes just as happily against a stale
+deployment.
+
+To deploy by hand — recovering from a failed run, or testing a `worker.js`
+change — build first, since `wrangler` uploads `out`, which is build output and
+is not committed:
 
 ```
 pnpm build
 cd infra/cloudflare && npx wrangler deploy
+./scripts/verify-cloudflare-static.sh   # from the repo root
 ```
 
 ## The cutover is a DNS toggle
