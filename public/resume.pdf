@@ -10,7 +10,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R /F2 6 0 R /F3 7 0 R >> >> /Contents 4 0 R /Annots [9 0 R 10 0 R 11 0 R 12 0 R] >>
 endobj
 4 0 obj
-<< /Length 9404 >>
+<< /Length 9575 >>
 stream
 BT /F2 15.3 Tf 1 0 0 1 195.503 748.372 Tm (ANDREW JOHN KAISERAUER) Tj ET
 BT /F1 8.6 Tf 1 0 0 1 45.601 735.41 Tm (ajkaiserauer@gmail.com) Tj ET
@@ -102,12 +102,13 @@ BT /F1 9 Tf 1 0 0 1 42 126.726 Tm (LLM inference infrastructure, enterprise AI p
 BT /F2 9 Tf 1 0 0 1 42 116.286 Tm (Languages: ) Tj ET
 BT /F1 9 Tf 1 0 0 1 95.01 116.286 Tm (Python, Go, FastAPI, Flask, JavaScript/TypeScript, Node.js, React, PowerShell) Tj ET
 BT /F2 9 Tf 1 0 0 1 42 105.846 Tm (Certifications: ) Tj ET
-BT /F1 9 Tf 1 0 0 1 105.009 105.846 Tm (AWS Certified DevOps Engineer \226 Professional \(issued Apr 2021, expired Apr 2024\); AWS Solutions Architect \226) Tj ET
-BT /F1 9 Tf 1 0 0 1 42 95.406 Tm (Associate; Certified SAFe 5 Product Owner/Product Manager \(issued Feb 2023, expired Feb 2024\); Azure Fundamentals) Tj ET
-BT /F2 9.5 Tf 1 0 0 1 42 77.586 Tm (EDUCATION) Tj ET
-q 0.55 G 0.6 w 42 74.786 m 570 74.786 l S Q
-BT /F1 9 Tf 1 0 0 1 42 63.756 Tm (Michigan State University: BS, Media & Information | East Lansing, MI | May 2016 | Minors: Computer Science Engineering,) Tj ET
-BT /F1 9 Tf 1 0 0 1 42 53.316 Tm (Information Technology, Game Design & Development) Tj ET
+BT /F1 9 Tf 1 0 0 1 105.009 105.846 Tm (Certified SAFe 5 Product Owner/Product Manager \(issued Feb 2023, expires Apr 2027\); Deloitte Certified Architect) Tj ET
+BT /F1 9 Tf 1 0 0 1 42 95.406 Tm (Level 1 \(issued Nov 2024\); Microsoft Certified: Azure Fundamentals \(issued May 2020\); AWS Certified DevOps Engineer \226) Tj ET
+BT /F1 9 Tf 1 0 0 1 42 84.966 Tm (Professional \(issued Apr 2021, expired Apr 2024\); AWS Certified Solutions Architect \226 Associate \(expired Jan 2024\)) Tj ET
+BT /F2 9.5 Tf 1 0 0 1 42 67.146 Tm (EDUCATION) Tj ET
+q 0.55 G 0.6 w 42 64.346 m 570 64.346 l S Q
+BT /F1 9 Tf 1 0 0 1 42 53.316 Tm (Michigan State University: BS, Media & Information | East Lansing, MI | May 2016 | Minors: Computer Science Engineering,) Tj ET
+BT /F1 9 Tf 1 0 0 1 42 42.876 Tm (Information Technology, Game Design & Development) Tj ET
 endstream
 endobj
 5 0 obj
@@ -141,16 +142,16 @@ xref
 0000000108 00000 n 
 0000000165 00000 n 
 0000000348 00000 n 
-0000009804 00000 n 
-0000009901 00000 n 
-0000010003 00000 n 
-0000010108 00000 n 
-0000010395 00000 n 
-0000010553 00000 n 
-0000010726 00000 n 
-0000010883 00000 n 
+0000009975 00000 n 
+0000010072 00000 n 
+0000010174 00000 n 
+0000010279 00000 n 
+0000010566 00000 n 
+0000010724 00000 n 
+0000010897 00000 n 
+0000011054 00000 n 
 trailer
 << /Size 13 /Root 1 0 R /Info 8 0 R >>
 startxref
-11042
+11213
 %%EOF
