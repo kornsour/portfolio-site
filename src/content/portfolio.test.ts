@@ -80,8 +80,11 @@ describe("portfolio content", () => {
 	});
 
 	it("uses the functional title and never claims a higher level", () => {
-		// Deloitte's internal HR title ("Lead Infrastructure Engineer II") describes
-		// almost none of the actual scope — 33 reports across four squads — so the
+		// Deloitte's internal HR title is simply "Manager" — the Deloitte rank,
+		// with no discipline attached (confirmed 2026-08-22; an earlier version of
+		// this comment claimed "Lead Infrastructure Engineer II", which was
+		// wrong). A bare rank describes almost none of the actual scope — 33
+		// reports across four squads — so the
 		// site uses the functional title. The HR title is disclosed on application
 		// forms and background checks, which is where verification happens; it is
 		// deliberately not published here, and the level is never inflated past
@@ -100,9 +103,12 @@ describe("portfolio content", () => {
 	});
 
 	it("shows Deloitte as one continuous role, not a title change", () => {
-		// The HR title has been "Manager, Cloud Architecture" since 2021 and still
-		// is; splitting it implied he left that title in 2022. Site and resume
-		// must agree on one unbroken entry.
+		// He has held the Deloitte "Manager" rank continuously since Jan 2021
+		// (LinkedIn splits it into "Manager, Cloud Architecture" Jan 2021–Jan 2022
+		// and "Manager, Platform Engineering" Jan 2022–present, but that is a
+		// change of assignment, not of employment). Splitting it here implied he
+		// left in 2022. Site and resume must agree on one unbroken entry, and both
+		// now derive it from the single `deloitte` position in career.ts.
 		const deloitte = roles.filter((r) => r.company === "Deloitte");
 		expect(deloitte.length).toBe(1);
 		expect(deloitte[0]?.period).toBe("2021 – Present");
@@ -121,5 +127,69 @@ describe("portfolio content", () => {
 			expect(item.name.length).toBeGreaterThan(0);
 			expect(item.description.length).toBeGreaterThan(0);
 		}
+	});
+});
+
+/**
+ * Reachability of the outbound links, checked against the real internet.
+ *
+ * Opt-in (`CHECK_LINKS=1 pnpm test`) and run weekly in CI rather than on every
+ * push: a retired deployment is not something a code change causes, so gating a
+ * PR on it would fail builds for a reason the PR did not create — and an
+ * offline `pnpm test` should still pass. What this catches is decay, which is
+ * exactly what happened here: two "Live site" links pointed at Vercel
+ * deployments that had 404'd since both products moved to AWS Lambda.
+ *
+ * Two links cannot be checked the obvious way, and both taught something:
+ *   - a relative href is an internal route; the site build already proves it
+ *     resolves, and fetching it as a URL only tests the test.
+ *   - npmjs.com answers 403 to every automated request, browser User-Agent or
+ *     not. Treating that as a dead link would be a false alarm on a package
+ *     that is published and live, so the package is checked against
+ *     registry.npmjs.org — the machine-readable endpoint that will answer.
+ */
+const NPM_PACKAGE = /^https:\/\/www\.npmjs\.com\/package\/(.+)$/;
+
+/** What to actually request for a given link, or null if it is not fetchable. */
+function checkTarget(url: string): string | null {
+	if (url.startsWith("/")) return null;
+	const packageName = NPM_PACKAGE.exec(url)?.[1];
+	if (packageName) return `https://registry.npmjs.org/${encodeURIComponent(packageName)}`;
+	return url;
+}
+
+describe("outbound links", () => {
+	it("only uses absolute https URLs or site-relative paths", () => {
+		for (const project of projects) {
+			for (const link of project.links ?? []) {
+				expect(
+					link.url.startsWith("https://") || link.url.startsWith("/"),
+					`${link.url} is neither https nor site-relative`,
+				).toBe(true);
+			}
+		}
+	});
+
+	describe.skipIf(!process.env.CHECK_LINKS)("resolve", () => {
+		const targets = projects
+			.flatMap((project) => (project.links ?? []).map((link) => link.url))
+			.map((url) => [url, checkTarget(url)] as const)
+			.filter((pair): pair is readonly [string, string] => pair[1] !== null);
+
+		it.each(targets)(
+			"%s responds without a client or server error",
+			async (url, target) => {
+				// HEAD first — some hosts answer it with 405, so fall back to GET.
+				let response = await fetch(target, { method: "HEAD", redirect: "follow" });
+				if (response.status === 405 || response.status === 501) {
+					response = await fetch(target, { method: "GET", redirect: "follow" });
+				}
+				expect(
+					response.status,
+					`${url} (fetched ${target}) returned ${response.status}`,
+				).toBeLessThan(400);
+			},
+			30_000,
+		);
 	});
 });
