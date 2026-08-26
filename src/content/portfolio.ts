@@ -1,28 +1,39 @@
 /**
  * All site content lives here. Edit this file — not the components — to update
- * the bio, experience, projects, or skills.
+ * the bio, projects, or skills.
+ *
+ * EXCEPT for the facts the resume also states. Employment dates, job titles,
+ * role bullets and the org size come from `./career.ts`, the canonical career
+ * record that `scripts/generate-resume.mts` also renders into
+ * `public/resume.pdf`. Two hand-maintained copies of one career is what this
+ * file used to be half of, and they drifted: the GE years said 2015 here and
+ * Jul 2016 on the resume. Add a career FACT to `career.ts`; add site PROSE
+ * (headline, value prop, about, projects) here.
  */
 
+import { formatSitePeriod, identity, metrics, positionById } from "./career";
+
 export const person = {
-	name: "Andrew Kaiserauer",
+	name: identity.name,
 	headline: "Engineering and platform leader who builds the systems other engineers build on",
-	valueProp:
-		"I run a 33-person Platform Engineering org at Deloitte and build AI infrastructure hands-on, from multi-tenant Kubernetes platforms to LLM inference systems.",
+	valueProp: `I run a ${metrics.orgSize}-person Platform Engineering org at Deloitte and build AI infrastructure hands-on, from multi-tenant Kubernetes platforms to LLM inference systems.`,
 	// Functional title: it describes the actual scope (33 reports, four squads).
-	// Deloitte's internal HR title is "Lead Infrastructure Engineer II" and is
-	// disclosed on application forms and background checks, not here.
-	title: "Engineering Manager, Platform Engineering, Deloitte",
-	location: "Detroit metro area & remote",
-	email: "ajkaiserauer@gmail.com",
-	linkedin: "https://www.linkedin.com/in/aj-kaiserauer/",
-	github: "https://github.com/kornsour",
+	// Deloitte's internal HR title is simply "Manager" — the Deloitte rank, with
+	// no discipline attached (confirmed 2026-08-22). It is disclosed on
+	// application forms and background checks, not here.
+	title: `${positionById("deloitte").title}, ${positionById("deloitte").company}`,
+	location: identity.location.site,
+	email: identity.email,
+	linkedin: identity.linkedin.url,
+	github: identity.github.url,
 	resumeHref: "/resume.pdf",
+	resumeFileName: "akaiserauer_resume.pdf",
 } as const;
 
 export const about: readonly string[] = [
-	"I build and lead platform engineering organizations. Today I run a 33-person Platform Engineering org at Deloitte, four squads with dedicated tech leads and product owners, where I treat the internal developer platform as a product serving thousands of engineers across the US Member Firm.",
+	`I build and lead platform engineering organizations. Today I run a ${metrics.orgSize}-person Platform Engineering org at Deloitte, ${metrics.squads} squads with dedicated tech leads and product owners, where I treat the internal developer platform as a product serving thousands of engineers across the US Member Firm.`,
 	"Outside work I build agent infrastructure hands-on, in TypeScript and Python: multi-agent systems behind approval gates and cost controls, LLM inference serving and performance engineering down to a custom CUDA kernel, and a published design system. The problems I find most interesting are the ones that decide what an agent is allowed to do on your behalf — permissioning, guardrails, and spend — and where those decisions get enforced.",
-	"I'm targeting engineering management roles in platform engineering and AI infrastructure — remote, or the Detroit metro area.",
+	"I'm targeting engineering and AI-infrastructure roles — leadership or senior individual contributor — remote, or the Detroit metro area.",
 ];
 
 export interface Role {
@@ -32,39 +43,41 @@ export interface Role {
 	highlights: readonly string[];
 }
 
-export const roles: readonly Role[] = [
-	{
-		company: "Deloitte",
-		title: "Engineering Manager, Platform Engineering",
-		period: "2021 – Present",
-		highlights: [
-			"Built and lead a four-squad Platform Engineering organization of 33 engineers, wearing the product-owner, engineering-manager, and lead-architect hats across all four squads.",
-			"Run a shared multi-tenant Kubernetes platform — an internal Vercel for every team in the department — serving 40+ microservices at roughly 99.95% uptime.",
-			"Standardized CI/CD and container delivery across 15 teams with golden images and GitOps (ArgoCD) — deployments went from hours to minutes and incidents fell about 30%.",
-			"Built an automated platform-provisioning framework: SCIM-driven access to developer tooling, a policy-enforcement engine with SOX-ready audit trails, adoption analytics, and the frontend squad that fronts it.",
-			"Own platform tooling and support across GitHub, Claude, Docker, and Postman for thousands of engineers firm-wide.",
-			"Led adoption of Backstage for 50+ services, cutting onboarding from weeks to days.",
-			"Led the enterprise rollout of GitHub Copilot and agentic development workflows.",
-		],
-	},
-	{
-		company: "GE Aviation",
-		title: "Senior Infrastructure Architect",
-		period: "2018 – 2020",
-		highlights: [
-			"Delivered 25+ cloud migrations and new builds, generating about $1.9M in infrastructure cost savings.",
-			"Built self-service AWS observability and native CI/CD that cut deployment time from an hour to two minutes.",
-		],
-	},
+/**
+ * How the site groups the canonical positions. The resume lists every position
+ * separately, because a resume is a record; the site collapses the two
+ * six-to-twelve-month GE roles into one entry, because a timeline with a
+ * two-line stub in it reads as noise. Grouping is a PRESENTATION choice and
+ * lives here — the dates, titles and bullets themselves do not.
+ */
+const SITE_ROLE_GROUPS: readonly {
+	company: string;
+	/** Only needed when a group spans more than one position. */
+	title?: string;
+	positionIds: readonly string[];
+}[] = [
+	{ company: "Deloitte", positionIds: ["deloitte"] },
+	{ company: "GE Aviation", positionIds: ["ge-aviation"] },
 	{
 		company: "GE Digital / GE Healthcare",
 		title: "Cloud Automation & Enterprise Application Engineering",
-		period: "2015 – 2018",
-		highlights: [
-			"Built cloud automation bots and cookbooks, cost-optimization tooling, and led Agile delivery.",
-		],
+		positionIds: ["ge-digital", "ge-healthcare"],
 	},
 ];
+
+export const roles: readonly Role[] = SITE_ROLE_GROUPS.map((group) => {
+	const grouped = group.positionIds.map(positionById);
+	const first = grouped[0];
+	if (!first) throw new Error(`Site role group "${group.company}" names no positions`);
+	return {
+		company: group.company,
+		title: group.title ?? first.title,
+		period: formatSitePeriod(grouped),
+		highlights: grouped.flatMap((position) =>
+			position.bullets.filter((bullet) => bullet.onSite).map((bullet) => bullet.text),
+		),
+	};
+});
 
 export interface ProjectLink {
 	url: string;
@@ -186,15 +199,15 @@ export const projects: readonly Project[] = [
 		name: "cohabuild",
 		description:
 			"A coordination platform for construction: one shared source of truth for the GC, owner, and subcontractors, with an AI layer that flags cross-trade conflicts before they become rework.",
-		tech: ["Next.js", "Vercel"],
-		links: [{ url: "https://cohabuild.vercel.app", label: "Live site" }],
+		tech: ["Next.js", "Drizzle", "Postgres", "Stripe", "AWS Lambda", "Cloudflare"],
+		links: [{ url: "https://cohabuild.com", label: "Live site" }],
 	},
 	{
 		name: "empaca",
 		description:
 			"A trip packing-list app: build lists by category, share a trip with travel companions, reuse favorite templates, and let an AI assistant do the busywork.",
-		tech: ["Next.js", "Vercel"],
-		links: [{ url: "https://empaca.app", label: "Live site" }],
+		tech: ["Next.js", "Drizzle", "Postgres", "better-auth", "AWS Lambda", "Cloudflare"],
+		links: [{ url: "https://empaca.uresu.app", label: "Live site" }],
 	},
 ];
 
@@ -220,7 +233,7 @@ export const skillGroups: readonly SkillGroup[] = [
 		title: "Engineering Leadership",
 		skills: [
 			"Building & scaling platform orgs",
-			"People management (33 reports)",
+			`People management (${metrics.orgSize} reports)`,
 			"Product & roadmap ownership",
 			"Agile / SAFe",
 			"Executive communication",
