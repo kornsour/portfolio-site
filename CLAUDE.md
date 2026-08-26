@@ -154,4 +154,6 @@ pnpm e2e[:ui]         # E2E (Playwright, local)
 
 ADRs in `docs/adr/` (read before changing foundational tooling; supersede,
 don't edit). Deployment (Vercel + Cloudflare DNS for andrewkaiserauer.com):
-`docs/setup/deployment.md`.
+`docs/setup/deployment.md`. `docs/archive/` holds superseded/historical docs
+and records only — never treat its contents as current or use them to inform
+new work.
