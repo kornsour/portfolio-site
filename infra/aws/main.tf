@@ -94,7 +94,7 @@ resource "aws_cloudfront_cache_policy" "site" {
 
 resource "aws_cloudfront_response_headers_policy" "security" {
   name    = "portfolio-site-security"
-  comment = "Equivalent to the Vercel rollback target's security headers"
+  comment = "Matches the security headers already live on the Cloudflare Worker"
 
   security_headers_config {
     content_security_policy {

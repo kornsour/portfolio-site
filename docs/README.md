@@ -5,7 +5,7 @@ Project documentation for this portfolio site.
 ## Contents
 
 - [`setup/`](./setup) — [getting started](./setup/getting-started.md) and
-  [deployment](./setup/deployment.md) (Vercel + Cloudflare DNS).
+  [deployment](./setup/deployment.md) (Cloudflare Worker, AWS S3/CloudFront).
 - [`security.md`](./security.md) — the security posture and pre-deploy checklist.
 - [`adr/`](./adr) — Architecture Decision Records: the _why_ behind the stack
   and conventions, including [ADR-0017](./adr/0017-static-portfolio-strip-down.md),

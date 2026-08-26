@@ -7,7 +7,7 @@ export const env = createEnv({
 	},
 	client: {
 		// Canonical site origin — used for metadata, the sitemap, OG URLs, and
-		// JSON-LD. Override per-environment (e.g. a Vercel preview URL).
+		// JSON-LD. Override per-environment (e.g. a local or preview URL).
 		NEXT_PUBLIC_APP_URL: z.url().default("https://andrewkaiserauer.com"),
 	},
 	runtimeEnv: {

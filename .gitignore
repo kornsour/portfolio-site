@@ -40,9 +40,6 @@ yarn-error.log*
 /blob-report/
 /playwright/.cache/
 
-# vercel
-.vercel
-
 # OpenTofu
 **/.terraform/*
 *.tfplan
