@@ -82,8 +82,8 @@ BT /F1 9 Tf 1 0 0 1 54 286.056 Tm (LLM inference platform on Kubernetes \(KServe
 BT /F1 9 Tf 1 0 0 1 54 275.616 Tm (through a custom Go KEDA external scaler, scaling 1 to 5 replicas at ~2,360 tokens/sec aggregate for ~$0.0015\2260.005 per 1M) Tj ET
 BT /F1 9 Tf 1 0 0 1 54 265.176 Tm (tokens; GitOps-managed, with Prometheus and Grafana.) Tj ET
 BT /F1 9 Tf 1 0 0 1 45 253.536 Tm (\225) Tj ET
-BT /F1 9 Tf 1 0 0 1 54 253.536 Tm (Inference performance engineering \(PyTorch, CUDA\): KV-cache reuse for 4.81\327 faster decode \(O\(T\262\) to O\(T\)\), request batching) Tj ET
-BT /F1 9 Tf 1 0 0 1 54 243.096 Tm (for 3.2\327 throughput at batch 16, int8 dynamic quantization for a 3.6\327 smaller model, a custom fused-RMSNorm CUDA kernel,) Tj ET
+BT /F1 9 Tf 1 0 0 1 54 253.536 Tm (Inference performance engineering \(PyTorch, CUDA\): KV-cache reuse for 4.8\327 faster decode \(O\(T\262\) to O\(T\)\), request batching) Tj ET
+BT /F1 9 Tf 1 0 0 1 54 243.096 Tm (for 3.42\327 throughput at batch 16, int8 dynamic quantization for a 3.6\327 smaller model, a custom fused-RMSNorm CUDA kernel,) Tj ET
 BT /F1 9 Tf 1 0 0 1 54 232.656 Tm (Megatron-style tensor parallelism, and a p50/p95 benchmark harness.) Tj ET
 BT /F1 9 Tf 1 0 0 1 45 221.016 Tm (\225) Tj ET
 BT /F1 9 Tf 1 0 0 1 54 221.016 Tm (Agentic ops-triage system that handles IT tickets end to end behind human approval gates, with RBAC, a hash-chained audit) Tj ET

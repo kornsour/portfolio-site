@@ -1,0 +1,31 @@
+# The "Live site" links point at deployments this repo does not control, so they
+# rot without any commit touching them — which is how two of them ended up 404ing
+# after both products moved off Vercel. This runs weekly rather than per-PR: a
+# retired deployment is not something a pull request caused, and failing a build
+# for it would train people to ignore the build.
+name: Link check
+
+on:
+  schedule:
+    - cron: "0 13 * * 1" # Mondays, 13:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check outbound links
+        env:
+          CHECK_LINKS: "1"
+        run: pnpm exec vitest run src/content/portfolio.test.ts
