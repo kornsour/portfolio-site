@@ -5,6 +5,10 @@ built with Next.js (App Router), TypeScript, and Tailwind CSS v4. Derived from
 [`typescript-template`](https://github.com/kornsour) with the auth, database,
 and billing layers removed (see [ADR-0017](./docs/adr/0017-static-portfolio-strip-down.md)).
 
+Project docs live under [`docs/`](./docs); [`docs/archive/`](./docs/archive)
+holds superseded/historical docs and records only — treat anything there as
+past context, not as the current state of the project.
+
 ## Run it locally
 
 ```bash
