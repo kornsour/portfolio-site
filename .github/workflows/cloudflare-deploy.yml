@@ -1,0 +1,91 @@
+name: Cloudflare deploy
+
+# andrewkaiserauer.com is served by the `portfolio-edge` Worker (infra/cloudflare),
+# which uploads the static export from out/. Until this workflow existed that
+# upload was a manual `wrangler deploy` nobody was reminded to run, so a green
+# main meant the code was correct — not that it was live. The site sat two
+# commits stale exactly that way on 2026-08-24.
+
+on:
+  # Deploy only after CI has actually gone green on main. A plain
+  # `push: branches: [main]` trigger would race CI and could publish a build
+  # that the test suite is in the middle of failing.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  # Manual redeploys: recovering from a failed run, or re-publishing after a
+  # Cloudflare-side change that did not come from a commit.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never let two deploys upload to the same Worker at once. Not cancel-in-progress:
+# a half-finished asset upload that gets cancelled leaves the site mismatched.
+concurrency:
+  group: portfolio-site-cloudflare-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # workflow_run fires on failure and cancellation too, so the conclusion must
+    # be checked explicitly. workflow_dispatch carries no workflow_run payload,
+    # hence the separate branch of the condition.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: cloudflare-production
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # A workflow_run job checks out the default branch's tip by default,
+          # which is not necessarily the commit CI just passed on — if two PRs
+          # merge close together that silently deploys the wrong tree. Pin to
+          # the exact SHA of the run that triggered this one.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Require deploy credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        # Fail loudly rather than skipping. A workflow that quietly no-ops when
+        # the secret is absent would recreate the precise failure this file
+        # exists to remove: main goes green, nothing deploys, and the stale site
+        # looks deployed.
+        run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN is not set. Add it under Settings → Secrets and variables → Actions (see infra/cloudflare/README.md)." >&2
+            exit 1
+          fi
+
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build static export
+        run: pnpm build
+
+      - name: Deploy Worker and static assets
+        working-directory: infra/cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        # Version pinned rather than bare `npx wrangler` (what the README shows
+        # for local use) so CI cannot drift onto a new major overnight. wrangler
+        # is deliberately not a devDependency — it is deploy tooling, not part
+        # of the app build — so Dependabot will not bump this; raise it by hand.
+        run: npx --yes wrangler@4.125.0 deploy
+
+      - name: Verify the deployed site
+        # Proves the bytes just built are the bytes now being served. Every
+        # other check here passes just as happily against a months-old
+        # deployment.
+        run: ./scripts/verify-cloudflare-static.sh
