@@ -191,14 +191,14 @@ export const projects: readonly Project[] = [
 	{
 		name: "deCuisine",
 		description:
-			"A full meal-planning and grocery SaaS: recipe discovery, weekly planner, auto-generated grocery lists, grocery-store integration, and subscription billing.",
+			"A full meal-planning and grocery SaaS: recipe discovery, weekly planner, auto-generated grocery lists, a Pro-gated Kroger API integration (OAuth, cart write, AES-GCM-encrypted refresh tokens), and Stripe billing in live mode with server-enforced entitlement.",
 		tech: ["Next.js", "Prisma", "Postgres", "Stripe"],
 		links: [{ url: "https://decuisine.com", label: "Live site" }],
 	},
 	{
 		name: "cohabuild",
 		description:
-			"A coordination platform for construction: one shared source of truth for the GC, owner, and subcontractors, with an AI layer that flags cross-trade conflicts before they become rework.",
+			"A coordination platform for construction: one shared source of truth for the GC, owner, and subcontractors, with a gate-then-cascade pipeline — deterministic gate, Haiku screen, schema-constrained Sonnet analysis — that flags cross-trade conflicts with cited evidence and per-project cost budgets.",
 		tech: ["Next.js", "Drizzle", "Postgres", "Stripe", "AWS Lambda", "Cloudflare"],
 		links: [{ url: "https://cohabuild.com", label: "Live site" }],
 	},
