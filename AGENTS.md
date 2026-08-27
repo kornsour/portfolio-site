@@ -19,6 +19,8 @@ Quick pointers for any coding agent (Claude Code, Codex, Cursor, …):
 - **Foundational changes:** read the relevant ADR in `docs/adr/` first; add a
   superseding ADR when you change a decision.
 - **Security:** `docs/security.md`; keep every route statically generated.
+- **`docs/archive/`** holds superseded/historical docs and records only. Treat
+  it as historical context, never as current state or guidance for new work.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -260,7 +260,7 @@ export const independentEngineering: { heading: string; bullets: readonly Bullet
 		},
 		{
 			id: "indep-inference-perf",
-			text: "Inference performance engineering (PyTorch, CUDA): KV-cache reuse for 4.81× faster decode (O(T²) to O(T)), request batching for 3.2× throughput at batch 16, int8 dynamic quantization for a 3.6× smaller model, a custom fused-RMSNorm CUDA kernel, Megatron-style tensor parallelism, and a p50/p95 benchmark harness.",
+			text: "Inference performance engineering (PyTorch, CUDA): KV-cache reuse for 4.8× faster decode (O(T²) to O(T)), request batching for 3.42× throughput at batch 16, int8 dynamic quantization for a 3.6× smaller model, a custom fused-RMSNorm CUDA kernel, Megatron-style tensor parallelism, and a p50/p95 benchmark harness.",
 			weight: { em: 85, ic: 100 },
 		},
 		{

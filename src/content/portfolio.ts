@@ -199,15 +199,15 @@ export const projects: readonly Project[] = [
 		name: "cohabuild",
 		description:
 			"A coordination platform for construction: one shared source of truth for the GC, owner, and subcontractors, with an AI layer that flags cross-trade conflicts before they become rework.",
-		tech: ["Next.js", "Vercel"],
-		links: [{ url: "https://cohabuild.vercel.app", label: "Live site" }],
+		tech: ["Next.js", "Drizzle", "Postgres", "Stripe", "AWS Lambda", "Cloudflare"],
+		links: [{ url: "https://cohabuild.com", label: "Live site" }],
 	},
 	{
 		name: "empaca",
 		description:
 			"A trip packing-list app: build lists by category, share a trip with travel companions, reuse favorite templates, and let an AI assistant do the busywork.",
-		tech: ["Next.js", "Vercel"],
-		links: [{ url: "https://empaca.app", label: "Live site" }],
+		tech: ["Next.js", "Drizzle", "Postgres", "better-auth", "AWS Lambda", "Cloudflare"],
+		links: [{ url: "https://empaca.uresu.app", label: "Live site" }],
 	},
 ];
 

@@ -129,3 +129,67 @@ describe("portfolio content", () => {
 		}
 	});
 });
+
+/**
+ * Reachability of the outbound links, checked against the real internet.
+ *
+ * Opt-in (`CHECK_LINKS=1 pnpm test`) and run weekly in CI rather than on every
+ * push: a retired deployment is not something a code change causes, so gating a
+ * PR on it would fail builds for a reason the PR did not create — and an
+ * offline `pnpm test` should still pass. What this catches is decay, which is
+ * exactly what happened here: two "Live site" links pointed at Vercel
+ * deployments that had 404'd since both products moved to AWS Lambda.
+ *
+ * Two links cannot be checked the obvious way, and both taught something:
+ *   - a relative href is an internal route; the site build already proves it
+ *     resolves, and fetching it as a URL only tests the test.
+ *   - npmjs.com answers 403 to every automated request, browser User-Agent or
+ *     not. Treating that as a dead link would be a false alarm on a package
+ *     that is published and live, so the package is checked against
+ *     registry.npmjs.org — the machine-readable endpoint that will answer.
+ */
+const NPM_PACKAGE = /^https:\/\/www\.npmjs\.com\/package\/(.+)$/;
+
+/** What to actually request for a given link, or null if it is not fetchable. */
+function checkTarget(url: string): string | null {
+	if (url.startsWith("/")) return null;
+	const packageName = NPM_PACKAGE.exec(url)?.[1];
+	if (packageName) return `https://registry.npmjs.org/${encodeURIComponent(packageName)}`;
+	return url;
+}
+
+describe("outbound links", () => {
+	it("only uses absolute https URLs or site-relative paths", () => {
+		for (const project of projects) {
+			for (const link of project.links ?? []) {
+				expect(
+					link.url.startsWith("https://") || link.url.startsWith("/"),
+					`${link.url} is neither https nor site-relative`,
+				).toBe(true);
+			}
+		}
+	});
+
+	describe.skipIf(!process.env.CHECK_LINKS)("resolve", () => {
+		const targets = projects
+			.flatMap((project) => (project.links ?? []).map((link) => link.url))
+			.map((url) => [url, checkTarget(url)] as const)
+			.filter((pair): pair is readonly [string, string] => pair[1] !== null);
+
+		it.each(targets)(
+			"%s responds without a client or server error",
+			async (url, target) => {
+				// HEAD first — some hosts answer it with 405, so fall back to GET.
+				let response = await fetch(target, { method: "HEAD", redirect: "follow" });
+				if (response.status === 405 || response.status === 501) {
+					response = await fetch(target, { method: "GET", redirect: "follow" });
+				}
+				expect(
+					response.status,
+					`${url} (fetched ${target}) returned ${response.status}`,
+				).toBeLessThan(400);
+			},
+			30_000,
+		);
+	});
+});

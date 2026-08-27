@@ -4,8 +4,12 @@ This Worker is the CDN layer for portfolio-site. It exists because AWS refuses t
 CloudFront distributions in these accounts (verification gate, support case
 178741276400319), so Cloudflare does CloudFront's routing job instead.
 
-It does **not** run Next.js. The application still executes exactly as OpenNext
-built it for AWS Lambda; this Worker only routes.
+It does **not** run Next.js, and there is no origin behind it. `next.config.ts`
+sets `output: "export"`, so a build is a directory of static files; this Worker
+serves those files from the `ASSETS` binding and attaches the response headers a
+static export cannot emit on its own. No Lambda, no API Gateway, no server
+runtime of any kind — see [ADR-0017](../../docs/adr/0017-static-portfolio-strip-down.md)
+and [ADR-0018](../../docs/adr/0018-portable-static-export.md).
 
 ## Deploying
 
@@ -40,29 +44,40 @@ cd infra/cloudflare && npx wrangler deploy
 their original origin (Vercel) as their content, so flipping `proxied` back to
 `false` in Cloudflare is a complete, immediate rollback.
 
-## Two bugs this file already carries fixes for — do not "simplify" them away
+## What this file actually does — do not "simplify" it away
 
-1. **The `ASSETS` lookup is guarded to GET/HEAD.** `env.ASSETS.fetch()`
-   consumes the request body. Calling it unconditionally leaves nothing for the
-   origin proxy and throws `Body has already been used` on every POST/PUT/
-   PATCH — Cloudflare error 1101 / HTTP 500. **GETs are unaffected, so the app
-   passes a status-code smoke test while every sign-in, form submission and
-   upload is broken.** This shipped live and went unnoticed for exactly that
-   reason (found and fixed 2026-08-23).
+`worker.js` has three jobs, in this order:
 
-2. **The request body is buffered with `arrayBuffer()`.** Passing
-   `request.body` (a ReadableStream) into `fetch` throws in the Workers
-   runtime, and `duplex: "half"` on the `Request` constructor does not fix
-   it. Buffering costs streaming, which is acceptable here.
+1. **One canonical host.** `www` — or any other hostname the Worker is reached
+   on — is 301'd to `andrewkaiserauer.com`, preserving path and query.
+   `*.workers.dev` is deliberately exempt, so the Worker stays verifiable on its
+   own hostname before the zone's DNS records are proxied.
+2. **Serve the static export.** `env.ASSETS.fetch()` returns the built file.
+   It is called for every method, which is correct here: nothing sits
+   downstream of it, so no proxied request body is at stake.
+3. **Attach the response headers.** `wrangler.jsonc` sets `run_worker_first` so
+   the Worker runs ahead of the asset server on every request and can add them.
+   Headers on the asset response are immutable, so the response is rebuilt
+   around `assetRes.body` rather than mutated in place.
 
-**When changing this file, test a POST, not just a GET.** A GET-only check
-cannot detect either bug:
+Two constants look removable and are not:
+
+- **`SECURITY_HEADERS`** is the site's entire header policy, and it is asserted
+  outside this directory: `scripts/verify-aws-static.sh` greps for each header
+  by name, and the AWS profile in `infra/aws` reproduces the same set. Changing
+  a value here means changing it in both.
+- **`EXTENSIONLESS_PNG`** covers `/icon` and `/opengraph-image`, which Next
+  emits as real files with no extension. Cloudflare's asset server has no
+  suffix to infer a type from and falls back to a generic one, so the type is
+  set explicitly; the verify script asserts `image/png` for both.
+
+**When changing this file, check the headers, not just the status code.** Every
+route returns 200 whether or not the header set survived:
 
 ```
-curl -sS -o /dev/null -w '%{http_code}\n' -X POST \
-  -H 'Content-Type: application/json' -d '{}' https://<host>/api/auth/...
+curl -sS -D - -o /dev/null https://<host>/
+curl -sS -D - -o /dev/null https://<host>/icon | grep -i '^content-type'
 ```
 
-A 500 means the Worker threw. Use `npx wrangler tail` to read the actual
-exception — the status code alone will not tell you which of the two faults
-you have.
+If the Worker throws instead, use `npx wrangler tail` to read the actual
+exception — the status code alone will not tell you what failed.
