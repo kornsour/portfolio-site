@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 import { describe, expect, it } from "vitest";
+import { SECURITY_HEADERS } from "../infra/cloudflare/worker.js";
 
 describe("AWS static deployment profile", () => {
 	it("keeps the S3 origin private and uses signed CloudFront OAC requests", async () => {
@@ -16,25 +17,20 @@ describe("AWS static deployment profile", () => {
 		expect(config).not.toContain("aws_lambda");
 	});
 
-	it("matches the Vercel rollback header policy", async () => {
-		const [awsConfig, vercelConfigText] = await Promise.all([
-			readFile("infra/aws/main.tf", "utf8"),
-			readFile("vercel.json", "utf8"),
-		]);
-		const vercelConfig = JSON.parse(vercelConfigText);
-		const securityHeaders = Object.fromEntries(
-			vercelConfig.headers[2].headers.map(({ key, value }: { key: string; value: string }) => [
-				key,
-				value,
-			]),
-		);
+	it("matches the header policy already live on the Cloudflare Worker", async () => {
+		// infra/aws hasn't deployed yet (AWS account verification pending — see
+		// docs/setup/deployment.md), so there's no live AWS response to check
+		// against. Comparing to infra/cloudflare/worker.js's SECURITY_HEADERS,
+		// the policy actually serving production today, keeps the two profiles
+		// from drifting apart before the AWS cutover.
+		const awsConfig = await readFile("infra/aws/main.tf", "utf8");
 
-		expect(awsConfig).toContain(securityHeaders["Content-Security-Policy"]);
-		expect(awsConfig).toContain(securityHeaders["Referrer-Policy"]);
-		expect(awsConfig).toContain(securityHeaders["Permissions-Policy"]);
-		expect(awsConfig).toContain(`value    = "${securityHeaders["X-DNS-Prefetch-Control"]}"`);
+		expect(awsConfig).toContain(SECURITY_HEADERS["content-security-policy"]);
+		expect(awsConfig).toContain(SECURITY_HEADERS["referrer-policy"]);
+		expect(awsConfig).toContain(SECURITY_HEADERS["permissions-policy"]);
+		expect(awsConfig).toContain(`value    = "${SECURITY_HEADERS["x-dns-prefetch-control"]}"`);
 		expect(awsConfig).toContain("content_type_options {");
-		expect(awsConfig).toContain(`frame_option = "${securityHeaders["X-Frame-Options"]}"`);
+		expect(awsConfig).toContain(`frame_option = "${SECURITY_HEADERS["x-frame-options"]}"`);
 		expect(awsConfig).toContain("access_control_max_age_sec = 63072000");
 		expect(awsConfig).toContain("include_subdomains         = true");
 		expect(awsConfig).toContain("preload                    = true");

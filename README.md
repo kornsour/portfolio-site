@@ -68,27 +68,21 @@ pnpm build        # portable static export → out/
 
 ## Deploy
 
-Every build is a portable static export. Vercel remains production during the
-AWS migration and applies the security headers in `vercel.json`.
+Every build is a portable static export (`out/`). Production is a Cloudflare
+Worker (`infra/cloudflare`) that serves that export from the edge and applies
+the security headers, in front of `andrewkaiserauer.com`:
 
 ```bash
-vercel link
-vercel deploy --prod
+pnpm build
+cd infra/cloudflare && npx wrangler deploy
 ```
 
-Then point the domain at it (Cloudflare DNS, kept **DNS-only** until the
-certificate is issued):
+An AWS-native profile — a private S3 origin behind CloudFront, no Lambda
+runtime — lives in `infra/aws` and is dispatched via the **AWS static deploy**
+GitHub Actions workflow once AWS account verification for CloudFront clears;
+until then it isn't deployable. No env vars are required for either target;
+set `NEXT_PUBLIC_APP_URL` only if the domain changes.
 
-```bash
-vercel domains add andrewkaiserauer.com <project>   # prints the required record
-cf dns records create -z andrewkaiserauer.com --body '{"type":"A","name":"@","content":"76.76.21.21","ttl":1,"proxied":false}'
-vercel domains inspect andrewkaiserauer.com          # poll until valid
-```
-
-Use whatever record/target `vercel domains add` actually prints. No env vars
-are needed in Vercel; set `NEXT_PUBLIC_APP_URL` only if the domain changes.
-
-The AWS target is a private S3 origin behind CloudFront with no Lambda runtime.
 See [`docs/setup/deployment.md`](./docs/setup/deployment.md) and
-[ADR-0018](./docs/adr/0018-portable-static-export.md). Do not change production
-DNS until the CloudFront staging deployment is verified and observed.
+[ADR-0018](./docs/adr/0018-portable-static-export.md) for the full picture,
+including why Cloudflare is standing in for CloudFront.

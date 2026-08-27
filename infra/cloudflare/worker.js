@@ -24,7 +24,7 @@
  * Copied from the live Vercel response on 2026-08-23. Keep in sync with
  * scripts/verify-aws-static.sh, which asserts each of these.
  */
-const SECURITY_HEADERS = {
+export const SECURITY_HEADERS = {
   "content-security-policy":
     "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'",
   "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
@@ -41,7 +41,7 @@ const SECURITY_HEADERS = {
  * to a generic type. Vercel served them as image/png and the verify script
  * asserts exactly that, so set it explicitly.
  */
-const EXTENSIONLESS_PNG = new Set(["/icon", "/opengraph-image"]);
+export const EXTENSIONLESS_PNG = new Set(["/icon", "/opengraph-image"]);
 
 const CANONICAL_HOST = "andrewkaiserauer.com";
 

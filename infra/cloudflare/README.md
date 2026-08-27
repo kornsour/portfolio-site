@@ -40,9 +40,9 @@ cd infra/cloudflare && npx wrangler deploy
 
 ## The cutover is a DNS toggle
 
-`routes` only take effect over **proxied** DNS records. The app's records keep
-their original origin (Vercel) as their content, so flipping `proxied` back to
-`false` in Cloudflare is a complete, immediate rollback.
+`routes` only take effect over **proxied** DNS records, so flipping `proxied`
+back to `false` on the zone's DNS record in Cloudflare is a complete,
+immediate rollback of this Worker.
 
 ## What this file actually does — do not "simplify" it away
 

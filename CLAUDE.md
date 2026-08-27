@@ -153,7 +153,7 @@ pnpm e2e[:ui]         # E2E (Playwright, local)
 ## Decisions & Docs
 
 ADRs in `docs/adr/` (read before changing foundational tooling; supersede,
-don't edit). Deployment (Vercel + Cloudflare DNS for andrewkaiserauer.com):
-`docs/setup/deployment.md`. `docs/archive/` holds superseded/historical docs
-and records only — never treat its contents as current or use them to inform
-new work.
+don't edit). Deployment (Cloudflare Worker, AWS S3/CloudFront pending account
+verification) for andrewkaiserauer.com: `docs/setup/deployment.md`.
+`docs/archive/` holds superseded/historical docs and records only — never
+treat its contents as current or use them to inform new work.
