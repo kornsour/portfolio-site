@@ -48,3 +48,4 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0017](./0017-static-portfolio-strip-down.md) | Strip the template to a static portfolio site | Accepted; header delivery superseded by [ADR-0018](./0018-portable-static-export.md) |
 | [0018](./0018-portable-static-export.md) | Deploy a portable static export | Accepted |
 | [0019](./0019-resume-is-generated-from-one-career-record.md) | Generate the resume from one canonical career record | Proposed |
+| [0020](./0020-slim-pre-push-hook.md) | Pre-push guards main and scans for secrets; CI runs verify | Proposed |

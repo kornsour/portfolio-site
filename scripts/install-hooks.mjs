@@ -97,7 +97,7 @@ if (worktreeConfigEnabled) {
 }
 
 console.log(
-	`\n  ${c.dim("git hooks active. pre-push runs a main-only branch guard, then pnpm verify")}`,
+	`\n  ${c.dim("git hooks active. pre-push refuses pushes to/deletes of main, then runs")}`,
 );
-console.log(`  ${c.dim("(Biome, tsc, Vitest, build, lockfile, Semgrep).")}`);
+console.log(`  ${c.dim("gitleaks over the pushed commits. CI runs pnpm verify's checks on the PR.")}`);
 console.log(`  ${c.dim("Disable:")} git config --unset core.hooksPath\n`);
