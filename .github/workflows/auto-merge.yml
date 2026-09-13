@@ -1,0 +1,81 @@
+name: Auto-merge
+
+# Enables GitHub auto-merge (squash) on every non-draft, same-repository pull
+# request that Dependabot did not open. Auto-merge is a request, not a merge:
+# GitHub holds the pull request until main's branch protection is satisfied --
+# the five required status checks green, conversations resolved -- and merges
+# it then. A red check does not merge.
+#
+# POLICY: mirrors the Lurking-Walrus organization's rule (2026-09-05) that green
+# CI is the merge gate, and the only merge gate. See
+# docs/adr/0021-auto-merge-pull-requests.md.
+#
+# INLINED, NOT REUSABLE: the Lurking-Walrus repos call
+# Lurking-Walrus/.github-private's auto-merge-reusable.yml. This repository is
+# public and owned by `kornsour`, so it cannot call a private workflow in
+# another owner's repository, and kornsour/gh-automation has no generic
+# auto-merge workflow (only dependabot-auto-merge.yml). The job below is that
+# reusable workflow's job, copied here.
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+# No workflow-level permissions on purpose: the job declares its own below
+# rather than granting them to every job a future edit might add here.
+permissions: {}
+
+# `cancel-in-progress: false` on purpose: this workflow can enable a merge.
+# Serializing duplicates is the goal; cancelling one mid-flight risks leaving
+# a pull request half-processed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  enable-auto-merge:
+    timeout-minutes: 10
+    # All three conditions are load-bearing. None is a style choice:
+    #
+    #   draft == false            a draft is explicitly not ready; the trigger
+    #                             re-runs this on `ready_for_review`.
+    #   head.repo == this repo    a fork pull request must never be
+    #                             auto-merged. It is attacker-authored code by
+    #                             definition, and this repository is PUBLIC, so
+    #                             anyone can open one. This clause is a
+    #                             security boundary, not a filter.
+    #   user.login != dependabot  dependabot-auto-merge.yml (via gh-automation)
+    #                             auto-merges only patch/minor bumps and leaves
+    #                             MAJOR bumps for manual review. Without this
+    #                             exclusion this workflow would auto-merge the
+    #                             majors too. It checks the pull request's
+    #                             author, not `github.actor`: the actor is
+    #                             whoever triggered this run, so a human
+    #                             reopening a Dependabot PR would slip past.
+    if: >-
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    # Canonical runner routing. This repository is public, so it resolves to
+    # ubuntu-latest: public repos always get GitHub-hosted runners, because a
+    # fork pull request on a public repo must never reach the self-hosted
+    # fleet.
+    runs-on: ${{ fromJSON(vars.USE_SELF_HOSTED_RUNNER == 'true' && github.event.repository.private && '["self-hosted","Linux"]' || '["ubuntu-latest"]') }}
+    # `gh pr merge --auto` calls the enablePullRequestAutoMerge GraphQL
+    # mutation, which requires both scopes below — contents: write is not
+    # optional here (verified against github/orgs/community discussion
+    # #24686 and #182732: merging/auto-merging a PR is bundled under
+    # contents: write, not pull-requests: write alone). No narrower scope
+    # exists for what this step does; permissions is job-scoped instead of
+    # workflow-scoped so it can't leak to a job added here later.
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Enable auto-merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Passed through env, not interpolated into `run:`, so no event
+          # field is ever spliced into the shell command.
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash "$PR_URL"
