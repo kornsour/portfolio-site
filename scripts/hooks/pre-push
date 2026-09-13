@@ -1,104 +1,124 @@
 #!/usr/bin/env bash
 #
-# git pre-push — run everything CI would, before anything reaches GitHub: a
-# branch guard, then `pnpm verify` (Biome, tsc, Vitest, the static-export
-# build, lockfile integrity, Semgrep when installed — see scripts/verify.sh).
+# git pre-push — only what has to happen BEFORE a push, and nothing CI already
+# does after one:
 #
-# A REAL git hook, not a Claude Code hook (see scripts/hooks/pre-commit-gate.sh,
-# which IS one, wired in .claude/settings.json — it only sees commits an agent
-# makes through the Bash tool). This one runs for every push from any source:
-# the operator's own terminal, an agent, a script. Install with
-# `pnpm hooks:install` (see scripts/install-hooks.mjs for why core.hooksPath
-# must be stored relative).
+#   1. Refuse to push to, or delete, main. Changes go through pull requests.
+#   2. Scan the commits being pushed for secrets (gitleaks).
 #
-# ─────────────────────────────────────────────────────────────────────────
-# 0. Refuse to push anything but main, unless explicitly overridden.
+# A REAL git hook, not a Claude Code hook (scripts/hooks/pre-commit-gate.sh is
+# one of those, wired in .claude/settings.json, and only sees commits an agent
+# makes through the Bash tool). This one runs for every push from any source.
+# An agent authenticates as the operator's own GitHub identity, so nothing on
+# GitHub's side can tell "the operator pushed this" from "an agent pushed
+# this" — the main guard lives here, where the repo can see which ref is about
+# to change, and fails in milliseconds instead of after a round-trip.
 #
-# Ported VERBATIM from career-manager (Lurking-Walrus) — unmodified, generic
-# bash with no repo-specific assumptions. See scripts/verify.sh's own header
-# for the full, verified account of what actually governs this repo's `main`:
-# a repository RULESET (id 18642487), not classic branch protection, with an
-# EMPTY bypass_actors list — meaning, unlike career-manager and unlike
-# sound-it-out's classic protection, NO ONE bypasses the PR requirement here,
-# not even the repo owner/admin. GitHub itself already refuses a direct push
-# to main from anyone, so this guard is belt-and-suspenders, not the last
-# line of defense — it just fails fast locally instead of waiting on a push
-# round-trip to be rejected server-side. `git log --merges` on main here is
-# almost entirely "Merge pull request #N…" (mostly Dependabot, plus a
-# handful of feature PRs), confirming the PR-based workflow the ruleset
-# already enforces, which means ALLOW_BRANCH_PUSH=1 will be the COMMON case
-# for an ordinary feature-branch push, not the rare one career-manager's own
-# comment describes.
+# NOT HERE, deliberately: `pnpm verify`. Every check in scripts/verify.sh runs
+# in CI on every pull request (kornsour/gh-automation's reusable ci.yml and
+# lockfile-guard.yml; this repo is public, so those jobs run on GitHub-hosted
+# runners at no cost), and all but Semgrep are required status checks on
+# main's branch protection. Running it again on every push only duplicated
+# CI — and it ran on pushes that carry no code at all (a branch delete from
+# git-cleanup failed on an unrelated red check). The hook used to run it
+# because Actions minutes were exhausted and CI was not running; that is no
+# longer true. Run `pnpm verify` by hand when you want the answer before CI.
 #
-# git feeds pre-push one line per ref being updated on stdin:
-#   <local ref> <local sha1> <remote ref> <remote sha1>
-# read this FIRST, before pnpm verify runs, so a feature-branch push is
-# rejected in milliseconds rather than after paying for the whole suite — and
-# so nothing downstream can accidentally read these lines off stdin itself.
+# BYPASS: `git push --no-verify` skips this hook entirely. That is git's
+# behavior and cannot be prevented client-side. The hook is a fast local check,
+# not an enforcement boundary — main's repository ruleset (pull request
+# required, no deletion, empty bypass list), branch protection, and CI are the
+# boundary.
 #
-# Only refs/heads/* is in scope: a tag push is a different concern entirely.
+# Install with `pnpm hooks:install` (sets core.hooksPath=scripts/hooks, relative
+# on purpose so each worktree runs its own copy of this file).
 #
-# ALLOW_BRANCH_PUSH=1 is the escape hatch, same shape as SKIP_VERIFY=1 below —
-# a real, legitimate need (an actual PR, a shared feature branch — here, the
-# NORMAL case), never silently bypassed.
-# ─────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
+ZERO='0000000000000000000000000000000000000000'
 REPO="$(git rev-parse --show-toplevel)"
-cd "$REPO"
 
-if [ "${ALLOW_BRANCH_PUSH:-}" != "1" ]; then
-	blocked=""
-	while read -r local_ref local_sha remote_ref remote_sha; do
-		case "$remote_ref" in
-		refs/heads/main) ;; # the one branch this guard treats as unconditional
-		refs/heads/*) blocked="${blocked}${remote_ref#refs/heads/} " ;;
-		*) ;; # refs/tags/* and anything else: out of scope for this guard
-		esac
-	done
+# git feeds one line per ref update on stdin:
+#   <local ref> <local sha> <remote ref> <remote sha>
+# A delete has local sha all zeros. stdin can be read only once, so capture it.
+REF_UPDATES="$(cat)"
 
-	if [ -n "$blocked" ]; then
-		printf 'pre-push: refusing to push branch(es): %s— this hook only lets main\n' "$blocked" >&2
-		echo "  through unconditionally. This repo's real workflow is feature-branch +" >&2
-		echo "  PR (and GitHub's own ruleset requires it — see scripts/verify.sh's header)," >&2
-		echo "  so this is the expected message for an ordinary push, not a bug — set:" >&2
-		echo "    ALLOW_BRANCH_PUSH=1 git push" >&2
-		exit 1
-	fi
-else
-	# Still drain stdin even when overridden — git is waiting on the other end
-	# of this pipe, and an unread ref-update line left in the buffer is exactly
-	# the kind of thing that looks fine here and hangs a later step instead.
-	while read -r _; do :; done
+# ---------------------------------------------------------------------------
+# 1. Main guard. Covers deleting main as well as pushing to it. Feature
+#    branches, their deletion, and tags pass straight through.
+#    ALLOW_MAIN_PUSH=1 is the escape hatch. It only gets the push as far as
+#    GitHub: main's ruleset has an empty bypass list, so GitHub still rejects
+#    a direct push to or delete of main unless that ruleset is changed first.
+# ---------------------------------------------------------------------------
+if [ "${ALLOW_MAIN_PUSH:-}" != "1" ]; then
+	while read -r _local_ref _local_sha remote_ref _remote_sha; do
+		if [ "$remote_ref" = "refs/heads/main" ]; then
+			echo "pre-push: refusing to push to main — this repo uses pull requests." >&2
+			echo "" >&2
+			echo "    git switch -c <branch> && git push -u origin <branch>" >&2
+			echo "    gh pr create --fill" >&2
+			echo "" >&2
+			echo "  If this really must go straight to main:  ALLOW_MAIN_PUSH=1 git push" >&2
+			exit 1
+		fi
+	done <<<"$REF_UPDATES"
 fi
 
-# ─────────────────────────────────────────────────────────────────────────
-# 1. pnpm verify — the CI-equivalent checks. SKIP_VERIFY=1 is the escape
-#    hatch. A failure here BLOCKS the push; scripts/verify.sh prints exactly
-#    which check failed and the command to reproduce it alone.
-# ─────────────────────────────────────────────────────────────────────────
-if [ "${SKIP_VERIFY:-}" = "1" ]; then
-	echo "pre-push: SKIP_VERIFY=1 — skipping pnpm verify." >&2
-else
-	echo "pre-push: running pnpm verify…" >&2
-	if ! pnpm verify; then
-		echo "pre-push: pnpm verify failed — push aborted. See the summary above." >&2
-		exit 1
-	fi
-fi
-
-# ─────────────────────────────────────────────────────────────────────────
-# NO e2e / Playwright STAGE HERE, DELIBERATELY.
+# ---------------------------------------------------------------------------
+# 2. gitleaks over the commits being pushed — the local half of secret
+#    scanning (GitHub secret scanning with push protection, enabled on this
+#    repo, is the server-side half). Before is strictly better: a secret that
+#    reaches a public remote is exposed from that moment.
 #
-# career-manager runs its e2e suite from pre-push too, but ONLY when the
-# checkout has an isolated PORT and DATABASE_URL of its own. This repo is a
-# static export with no database and no server runtime at all — there is no
-# "isolated DATABASE_URL" for it to have, and no live app server that an
-# unguarded e2e run could drive against real data the way career-manager's
-# guard exists to prevent. It is left out here for a simpler reason: it just
-# is not part of what this repo's CI runs (see scripts/verify.sh's header),
-# and the brief for this port was explicit — don't invent a check CI doesn't
-# run. `pnpm e2e` remains available to run by hand.
-# ─────────────────────────────────────────────────────────────────────────
+#    Scans a COMMIT RANGE (`gitleaks git --log-opts`), never a directory:
+#    `gitleaks dir` ignores .gitignore and ground for minutes through a 49 GB
+#    `.next/` cache (measured 2026-09-05) where a range scan took ~40ms.
+#
+#    Deletes carry no commits and are skipped, so a delete-only push never
+#    invokes gitleaks at all. Missing gitleaks warns and continues.
+# ---------------------------------------------------------------------------
+status=0
+warned=0
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+	[ -z "$local_sha" ] && continue
+	[ "$local_sha" = "$ZERO" ] && continue
 
-echo "pre-push: verify passed." >&2
+	if ! command -v gitleaks >/dev/null 2>&1; then
+		if [ "$warned" = 0 ]; then
+			echo "pre-push: gitleaks not installed; skipping local secret scan (brew install gitleaks)." >&2
+			warned=1
+		fi
+		continue
+	fi
+
+	if [ "$remote_sha" = "$ZERO" ]; then
+		# New ref on the remote: scan only what it adds beyond the remote's
+		# other refs, not the whole repository's history.
+		range="$local_sha --not --remotes"
+	else
+		range="${remote_sha}..${local_sha}"
+	fi
+
+	# --redact so a real finding is not written into terminal scrollback.
+	if ! gitleaks git --no-banner --redact --exit-code 1 --log-opts "$range" "$REPO"; then
+		status=1
+	fi
+done <<<"$REF_UPDATES"
+
+if [ "$status" -ne 0 ]; then
+	cat >&2 <<'MSG'
+
+pre-push: BLOCKED — gitleaks found a secret in the commits you are pushing.
+
+  * A real secret: do NOT just amend the commit. Rotate the credential first;
+    it is compromised the moment it exists in a commit you might push.
+  * A false positive: add an evidenced entry to .gitleaks.toml (or
+    .gitleaksignore) recording what the string is and why it is not a
+    credential, then push again.
+  * To bypass this check knowingly: git push --no-verify
+
+MSG
+	exit 1
+fi
+
+exit 0

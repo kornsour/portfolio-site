@@ -133,6 +133,7 @@ pnpm dev              # dev server (Turbopack)
 pnpm build            # production build (all static, no env needed)
 pnpm check[:fix]      # Biome lint+format
 pnpm test             # unit tests (Vitest)
+pnpm verify           # everything CI runs, concurrently (by hand; not a hook)
 pnpm resume           # regenerate the resume PDFs from src/content/career.ts
 pnpm e2e[:ui]         # E2E (Playwright, local)
 ```
@@ -142,6 +143,11 @@ pnpm e2e[:ui]         # E2E (Playwright, local)
 - Biome only; tabs; line width 100; double quotes; semicolons. Run `pnpm check:fix` before committing.
 - A commit is gated by a PreToolUse hook that runs `pnpm check && pnpm test`
   (`.claude/settings.json` → `scripts/hooks/pre-commit-gate.sh`).
+- A push is gated by a git pre-push hook (`scripts/hooks/pre-push`, installed by
+  `pnpm hooks:install`) that refuses any push to or delete of `main`
+  (`ALLOW_MAIN_PUSH=1` overrides) and runs gitleaks over the pushed commits. It
+  does not run `pnpm verify` — CI runs those checks on the PR (ADR-0020). Run
+  `pnpm verify` by hand to get CI's answer first.
 
 ## Security
 

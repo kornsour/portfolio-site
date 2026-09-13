@@ -1,53 +1,31 @@
 #!/usr/bin/env bash
 #
 # Everything this repo's real CI runs against it — Biome, tsc, Vitest, the
-# static-export build, and lockfile integrity — run locally before a push
-# reaches origin, so a push has already passed what CI is about to check
-# instead of discovering it there.
+# static-export build, lockfile integrity, and Semgrep — run locally, on
+# demand, so you can get CI's answer before CI does.
 #
-# WHY THIS EXISTS: the org's GitHub Actions minutes are exhausted for this
-# billing cycle — jobs fail in seconds having run zero steps, which is not a
-# CI failure to fix, it's CI not running at all. Ported from career-manager /
-# indabin (Lurking-Walrus), where the same script exists for the same reason.
-# Here it is the ONLY thing actually gating a push until Actions minutes reset.
+# RUN IT BY HAND. It is not wired into any git hook. It used to run from
+# scripts/hooks/pre-push, back when GitHub Actions minutes were exhausted and
+# this script was the only thing checking a push. CI runs again now (this
+# repo is public, so its jobs run on GitHub-hosted runners at no cost), every
+# change reaches main through a pull request, and the same checks run there —
+# so the hook now only guards main and scans for secrets. See
+# docs/adr/0020-slim-pre-push-hook.md.
 #
-# WHAT GOVERNS THIS REPO'S `main` (verified with `gh api`, not assumed):
-# this repo is owned by the user `kornsour` — a personal GitHub account, not
-# an organization — so there is no org-wide ruleset like the one that excludes
-# career-manager by name from Lurking-Walrus's "PR required" rule (org ruleset
-# 20334842). `main` here IS covered by a repository RULESET (the newer
-# GitHub feature, distinct from career-manager's/sound-it-out's classic branch
-# protection): `gh api repos/kornsour/portfolio-site/rules/branches/main`
-# returns a `pull_request` rule and a `required_status_checks` rule (Biome,
-# Type check, Unit tests, Build, lockfile / integrity — no DB migration check;
-# this repo has no database, see below), both sourced from ruleset id
-# 18642487. That ruleset's own `bypass_actors` array (`gh api
-# repos/kornsour/portfolio-site/rulesets/18642487`) is EMPTY. Unlike classic
-# branch protection's `enforce_admins` flag, an empty bypass list on a
-# Repository ruleset means no one bypasses it — not even the repository
-# owner/admin. `kornsour` has `admin` permission here, same as on every repo
-# owned by this account, but that permission does not let a direct push to
-# `main` through: GitHub itself rejects it, for the operator and any agent
-# authenticating as the operator alike. So — unlike career-manager, where
-# nothing on GitHub's side can stop an agent from pushing straight to main,
-# and unlike sound-it-out's classic protection (enforce_admins: false), where
-# the admin bypass is real — this repo's server-side rule already does what
-# the branch guard below exists to do.
-#
-# THE GUARD IS STILL PORTED VERBATIM (per the brief), because it is cheap,
-# generic, and fails fast locally instead of waiting on a push round-trip to
-# GitHub to be rejected — but it is belt-and-suspenders here, not the last
-# line of defense career-manager depends on it being. `git log --merges` on
-# main here is almost entirely "Merge pull request #N…" (mostly Dependabot,
-# plus a handful of feature PRs), confirming the PR-based workflow the
-# ruleset already enforces. As with the other two repos in this port, that
-# means ALLOW_BRANCH_PUSH=1 will be the common case for an ordinary
-# feature-branch push here, not the rare exception career-manager's own
-# comment describes — see scripts/hooks/pre-push for the same reasoning
-# applied there.
+# WHAT GOVERNS THIS REPO'S `main` (verified with `gh api` on 2026-09-13, not
+# assumed):
+#   - Repository ruleset 18642487 (`gh api
+#     repos/kornsour/portfolio-site/rulesets/18642487`): `pull_request`,
+#     `deletion`, and `non_fast_forward` rules, with an EMPTY bypass_actors
+#     list — no one, the owner included, pushes straight to or deletes main.
+#   - Classic branch protection (`gh api
+#     repos/kornsour/portfolio-site/branches/main/protection`): strict
+#     required status checks `ci / Lint & format (Biome)`, `ci / Type check`,
+#     `ci / Unit tests (Vitest)`, `ci / Build`, `lockfile / integrity`.
+#     Semgrep runs in CI but is not required.
 #
 # What each check below mirrors (see .github/workflows/ci.yml, which calls
-# kornsour/gh-automation/.github/workflows/ci.yml@main with
+# kornsour/gh-automation/.github/workflows/ci.yml (pinned to a SHA) with
 # `migration-check: false`, plus this repo's own .github/workflows/lockfile.yml
 # — all read directly, not guessed at; the reusable workflow itself is cloned
 # locally at ~/Documents/GitHub/kornsour/gh-automation/.github/workflows/ci.yml):
@@ -61,7 +39,8 @@
 #   lockfile / integrity       | scripts/check-lockfile.sh
 #   ci / Security scan         | scripts/check-semgrep.sh — SKIPS loudly if
 #   (Semgrep)                    semgrep isn't installed; not a required
-#                                 status check on this repo's ruleset, but a
+#                                 status check on this repo's branch
+#                                 protection, but a
 #                                 real CI job (security-scan defaults to true
 #                                 and this repo's ci.yml caller doesn't
 #                                 override it) — included so verify.sh
