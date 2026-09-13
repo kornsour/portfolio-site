@@ -148,6 +148,11 @@ pnpm e2e[:ui]         # E2E (Playwright, local)
   (`ALLOW_MAIN_PUSH=1` overrides) and runs gitleaks over the pushed commits. It
   does not run `pnpm verify` — CI runs those checks on the PR (ADR-0020). Run
   `pnpm verify` by hand to get CI's answer first.
+- Every non-draft PR from this repository gets GitHub auto-merge (squash) and
+  merges once the required checks pass (`.github/workflows/auto-merge.yml`,
+  ADR-0021). Open it as a draft to keep it from merging. Dependabot PRs are
+  excluded: `dependabot-auto-merge.yml` merges patch/minor, and majors stay
+  manual.
 
 ## Security
 
