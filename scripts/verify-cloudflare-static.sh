@@ -36,8 +36,22 @@ done
 # ─────────────────────────────────────────────────────────────────────────
 # 1. Every route the static export emits still answers 200.
 # ─────────────────────────────────────────────────────────────────────────
-for route in / /writing/agent-guardrails /research /research/model-routing /research/model-routing-white-paper-v1.0.pdf /robots.txt /sitemap.xml /icon /opengraph-image /resume.pdf; do
-	status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' "${ORIGIN}${route}")"
+for route in / /writing/agent-guardrails /research /research/model-routing /research/model-routing-white-paper-v1.0.pdf /research/route-on-evidence-v0.2-draft.pdf /robots.txt /sitemap.xml /icon /opengraph-image /resume.pdf; do
+	# The research PDFs get a few retries. Right after the deploy that first
+	# uploaded one (#73, 2026-09-25), the edge answered 404 for the white paper
+	# for a moment and failed the run, while the next deploy found it serving
+	# fine: a just-uploaded file can briefly miss at the edge. A PDF that is
+	# genuinely missing still fails, just about a minute later.
+	attempts=1
+	case "$route" in *.pdf) attempts=10 ;; esac
+	for attempt in $(seq 1 "$attempts"); do
+		status="$(curl --silent --show-error --header 'Cache-Control: no-cache' --output /dev/null --write-out '%{http_code}' "${ORIGIN}${route}")"
+		[ "$status" = "200" ] && break
+		if [ "$attempt" -lt "$attempts" ]; then
+			echo "verify: attempt ${attempt}/${attempts} — ${route} returned ${status}, retrying" >&2
+			sleep 6
+		fi
+	done
 	if [ "$status" != "200" ]; then
 		echo "verify: ${route} returned ${status}, expected 200" >&2
 		exit 1
