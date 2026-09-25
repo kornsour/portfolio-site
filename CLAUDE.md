@@ -43,6 +43,18 @@ reads as current), and `independentEngineering` is personal work that must never
 be presented as professional experience — no employer, no dates, its own
 heading, always below the employment history, in every variant.
 
+## Research papers
+
+`/research` and `/research/<slug>` render `src/content/research.ts`; the full
+PDFs sit in `public/research/`. The page condenses the paper and the PDF is the
+version of record, so every number on a page must appear in its PDF — update
+the PDF first, then the content from it. A paper whose study has not run is
+`status: "draft"` and renders a draft banner; `research.test.ts` enforces the
+label, that each PDF exists, and that nothing unlinked sits in
+`public/research/` (a file there is published whether or not anything links to
+it). The charts are redrawn as SVG from the paper's own tables, not embedded as
+images, so they follow the theme.
+
 ## The resume
 
 ```bash
@@ -91,6 +103,7 @@ whole anti-drift mechanism, which is why the generator is deterministic (no
 src/
 ├── content/career.ts      # CANONICAL career record (dates, titles, bullets, certs)
 ├── content/portfolio.ts   # site content; derives career facts from career.ts
+├── content/research.ts    # research papers: condensed page content + chart data
 ├── lib/resume/            # zero-dependency PDF generator + text extractor
 ├── env.ts                 # NEXT_PUBLIC_APP_URL (defaults to https://andrewkaiserauer.com)
 ├── app/
@@ -103,6 +116,7 @@ src/
                            # section, reveal, icons
 scripts/generate-resume.mts  # `pnpm resume`
 public/resume.pdf          # GENERATED — do not hand-edit
+public/research/*.pdf      # papers, copied unchanged from Drive; the version of record
 resumes/                   # GENERATED, gitignored — cuts the site does not offer
 ```
 
@@ -119,7 +133,8 @@ without JS. No animation libraries, no parallax.
 
 ## Quality bar
 
-- Every route stays statically generated (`pnpm build` must show all `○`).
+- Every route stays statically generated (`pnpm build` must show only `○`, or `●`
+  for `/research/[slug]`, which prerenders every paper via `generateStaticParams`).
 - WCAG AA in both themes; keyboard navigable; visible focus states.
 - No phone number anywhere on the site — a unit test enforces this.
 - Content claims come from the user only. **Never invent metrics, employers,

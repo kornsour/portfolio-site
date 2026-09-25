@@ -13,7 +13,7 @@ export function SiteHeader() {
 					{person.name}
 				</a>
 				<div className="flex items-center gap-1">
-					<nav aria-label="Section navigation" className="hidden sm:block">
+					<nav aria-label="Section navigation" className="hidden lg:block">
 						<ul className="flex items-center gap-1">
 							{nav.map((item) => (
 								<li key={item.href}>
