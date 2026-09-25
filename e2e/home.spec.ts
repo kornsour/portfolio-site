@@ -59,3 +59,23 @@ test("research papers are reachable, readable, and downloadable", async ({ page 
 	await page.goto("/research/route-on-evidence");
 	await expect(page.getByRole("note")).toContainText("not yet registered and not yet run");
 });
+
+test("research search filters papers by their full text", async ({ page }) => {
+	await page.goto("/research");
+	const search = page.getByRole("searchbox", { name: "Search research" });
+	const cards = page.getByRole("main").getByRole("article");
+	await expect(cards).toHaveCount(2);
+
+	// "Michelin" appears only in the body of the route-on-evidence paper.
+	await search.fill("michelin");
+	await expect(cards).toHaveCount(1);
+	await expect(page.getByText("1 paper matches “michelin”")).toBeVisible();
+	await expect(cards.first()).toContainText("Route on evidence");
+
+	await search.fill("zzzz-no-such-term");
+	await expect(cards).toHaveCount(0);
+	await expect(page.getByText("No papers match")).toBeVisible();
+
+	await search.fill("");
+	await expect(cards).toHaveCount(2);
+});

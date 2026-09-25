@@ -76,9 +76,12 @@ export interface Paper {
 }
 
 /** The index page's heading and intro, also used as its meta description. */
-export const researchHeading = "Research on what AI work actually costs";
-export const researchIntro =
-	"What agentic AI work costs per completed task, not per token. Studies are pre-registered and graded by hidden tests rather than an LLM judge, and the harness and raw data are public. Each paper has a readable summary here and the full PDF to download.";
+// Deliberately topic-neutral: the section is for any research, not one field.
+// What a particular study is about belongs in that paper's own `summary`.
+export const researchHeading = "Papers and experiments";
+/** Meta description only; the page itself shows a search box instead of an intro. */
+export const researchDescription =
+	"Independent research I run and write up. Each paper has a readable summary and the full PDF to download.";
 
 // ─── Figures ──────────────────────────────────────────────────────────────
 // The white paper's three charts, redrawn as SVG from the numbers in its own
