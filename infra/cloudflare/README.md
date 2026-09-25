@@ -19,6 +19,44 @@ needs two repository secrets, `CLOUDFLARE_API_TOKEN` and
 `CLOUDFLARE_ACCOUNT_ID`; without them the workflow fails loudly rather than
 skipping.
 
+"Once CI has gone green" depends on CI running on `main` at all. That only
+happens when the merge is not made with `GITHUB_TOKEN`, so auto-merge needs its
+own `AUTO_MERGE_TOKEN` secret. From 2026-09-13 to 2026-09-25 it had none, and
+nothing deployed. See
+[ADR-0022](../../docs/adr/0022-auto-merge-token-triggers-main-ci.md).
+
+### Deploy credentials
+
+Create the token at dash.cloudflare.com → My Profile → API Tokens → Create
+Token → **Create Custom Token**. Grant exactly these permissions:
+
+| Scope   | Permission      | Access | Why                                                                                          |
+| ------- | --------------- | ------ | -------------------------------------------------------------------------------------------- |
+| Account | Workers Scripts | Edit   | Upload `portfolio-edge` and its assets; attach the `akaiserauer.com` custom domains           |
+| Zone    | Workers Routes  | Edit   | The `andrewkaiserauer.com/*` redirect routes                                                  |
+| Zone    | DNS             | Edit   | A custom domain makes wrangler create the proxied DNS record on `akaiserauer.com`             |
+| Zone    | Zone            | Read   | wrangler looks each zone up by name (`zone_name`, custom-domain hostnames)                    |
+
+- **Account Resources:** include the account that owns `portfolio-edge` only.
+- **Zone Resources:** include the specific zones `akaiserauer.com` **and**
+  `andrewkaiserauer.com`. A token scoped to the old zone alone fails on the
+  custom domains. Before PR #72 that was the only zone the Worker used.
+- Set an expiry and a reminder to rotate. An expired token fails the "Require
+  deploy credentials" step no differently from a missing one.
+
+Then, under GitHub → Settings → Secrets and variables → Actions, add both as
+**repository** secrets (or as secrets of the `cloudflare-production`
+environment, which the deploy job uses):
+
+- `CLOUDFLARE_API_TOKEN`: the token above.
+- `CLOUDFLARE_ACCOUNT_ID`: the account ID from the dashboard's Workers &
+  Pages overview. Setting it also means wrangler skips account discovery, so
+  the token needs no `User`/`Memberships` permissions.
+
+If a deploy fails with an authentication error on a specific API path, that
+path names the missing permission. Add that one permission rather than reaching
+for the broad "Edit Cloudflare Workers" template.
+
 It did not always work that way, and the failure mode is worth knowing because
 nothing about it looks broken: from the Cloudflare cutover until 2026-08-24 the
 upload was a manual step nobody was prompted to run, so `main` went green while
