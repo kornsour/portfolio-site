@@ -120,7 +120,7 @@ export const identity = {
 		/** On the site, where availability matters more than a city. */
 		site: "Detroit metro area & remote",
 	},
-	website: "andrewkaiserauer.com",
+	website: "akaiserauer.com",
 	linkedin: {
 		url: "https://www.linkedin.com/in/aj-kaiserauer/",
 		display: "linkedin.com/in/aj-kaiserauer",

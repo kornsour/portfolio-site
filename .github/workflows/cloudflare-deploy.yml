@@ -1,6 +1,6 @@
 name: Cloudflare deploy
 
-# andrewkaiserauer.com is served by the `portfolio-edge` Worker (infra/cloudflare),
+# akaiserauer.com is served by the `portfolio-edge` Worker (infra/cloudflare),
 # which uploads the static export from out/. Until this workflow existed that
 # upload was a manual `wrangler deploy` nobody was reminded to run, so a green
 # main meant the code was correct — not that it was live. The site sat two

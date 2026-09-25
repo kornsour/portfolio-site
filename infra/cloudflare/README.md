@@ -38,18 +38,26 @@ cd infra/cloudflare && npx wrangler deploy
 ./scripts/verify-cloudflare-static.sh   # from the repo root
 ```
 
-## The cutover is a DNS toggle
+## Domains
 
-`routes` only take effect over **proxied** DNS records, so flipping `proxied`
-back to `false` on the zone's DNS record in Cloudflare is a complete,
-immediate rollback of this Worker.
+`akaiserauer.com` and `www.akaiserauer.com` are attached as **custom domains**:
+`wrangler deploy` creates their proxied DNS records and certificates, so the
+deploy token needs Workers and DNS edit access on the `akaiserauer.com` zone as
+well as the old one.
+
+`andrewkaiserauer.com` (and `www.`) is the previous domain. It stays attached
+through ordinary `routes` over its existing **proxied** DNS records, only so the
+Worker can 301 it to `akaiserauer.com`. Flipping `proxied` back to `false` on
+that zone's records detaches the Worker from the old domain immediately.
 
 ## What this file actually does — do not "simplify" it away
 
 `worker.js` has three jobs, in this order:
 
-1. **One canonical host.** `www` — or any other hostname the Worker is reached
-   on — is 301'd to `andrewkaiserauer.com`, preserving path and query.
+1. **One canonical host.** `www`, the previous domain `andrewkaiserauer.com`,
+   or any other hostname the Worker is reached on is 301'd to `akaiserauer.com`,
+   preserving path and query — which is what keeps old links to the previous
+   domain working.
    `*.workers.dev` is deliberately exempt, so the Worker stays verifiable on its
    own hostname before the zone's DNS records are proxied.
 2. **Serve the static export.** `env.ASSETS.fetch()` returns the built file.

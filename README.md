@@ -1,4 +1,4 @@
-# andrewkaiserauer.com
+# akaiserauer.com
 
 Personal portfolio for Andrew Kaiserauer — a single-page, fully static site
 built with Next.js (App Router), TypeScript, and Tailwind CSS v4. Derived from
@@ -46,7 +46,7 @@ exactly once.
   (gitignored, outside `public/`) and is attached to applications by hand — this
   is a static export, so anything under `public/` is served at a guessable URL
   whether or not a link points at it.
-- **Canonical domain:** defaults to `https://andrewkaiserauer.com` in
+- **Canonical domain:** defaults to `https://akaiserauer.com` in
   [`src/env.ts`](./src/env.ts); override with `NEXT_PUBLIC_APP_URL` for
   previews.
 - Content changes are guarded by unit tests
@@ -70,7 +70,7 @@ pnpm build        # portable static export → out/
 
 Every build is a portable static export (`out/`). Production is a Cloudflare
 Worker (`infra/cloudflare`) that serves that export from the edge and applies
-the security headers, in front of `andrewkaiserauer.com`:
+the security headers, in front of `akaiserauer.com`:
 
 ```bash
 pnpm build
