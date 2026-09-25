@@ -105,7 +105,7 @@ src/
 ├── content/portfolio.ts   # site content; derives career facts from career.ts
 ├── content/research.ts    # research papers: condensed page content + chart data
 ├── lib/resume/            # zero-dependency PDF generator + text extractor
-├── env.ts                 # NEXT_PUBLIC_APP_URL (defaults to https://andrewkaiserauer.com)
+├── env.ts                 # NEXT_PUBLIC_APP_URL (defaults to https://akaiserauer.com)
 ├── app/
 │   ├── layout.tsx         # fonts, metadata, theme-init inline script
 │   ├── page.tsx           # composes sections; JSON-LD Person
@@ -180,6 +180,6 @@ pnpm e2e[:ui]         # E2E (Playwright, local)
 
 ADRs in `docs/adr/` (read before changing foundational tooling; supersede,
 don't edit). Deployment (Cloudflare Worker, AWS S3/CloudFront pending account
-verification) for andrewkaiserauer.com: `docs/setup/deployment.md`.
+verification) for akaiserauer.com: `docs/setup/deployment.md`.
 `docs/archive/` holds superseded/historical docs and records only — never
 treat its contents as current or use them to inform new work.

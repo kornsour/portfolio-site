@@ -16,7 +16,7 @@ cd infra/cloudflare && npx wrangler deploy
 ```
 
 No environment variables are required — the canonical URL defaults to
-`https://andrewkaiserauer.com` in `src/env.ts`. Set `NEXT_PUBLIC_APP_URL` only
+`https://akaiserauer.com` in `src/env.ts`. Set `NEXT_PUBLIC_APP_URL` only
 if that ever changes.
 
 `infra/cloudflare/worker.js` applies the production security headers (CSP,
@@ -57,7 +57,7 @@ is cleared; an S3-only partial deployment does not provide a usable staging URL.
 
 ## Post-deploy checklist
 
-1. `https://andrewkaiserauer.com` loads with a valid certificate; `www` redirects.
+1. `https://akaiserauer.com` loads with a valid certificate; `www` redirects.
 2. `/resume.pdf` serves the real resume (replace the committed placeholder).
 3. OG card renders (paste the URL into a LinkedIn/Slack preview).
 4. `robots.txt` and `sitemap.xml` reference the production domain.

@@ -10,10 +10,28 @@
 # `wrangler deploy`, and runnable by hand against the live site:
 #
 #   ./scripts/verify-cloudflare-static.sh
-#   ORIGIN=https://www.andrewkaiserauer.com ./scripts/verify-cloudflare-static.sh
+#   ORIGIN=https://www.akaiserauer.com ./scripts/verify-cloudflare-static.sh
 set -euo pipefail
 
-ORIGIN="${ORIGIN:-https://andrewkaiserauer.com}"
+CANONICAL="https://akaiserauer.com"
+ORIGIN="${ORIGIN:-$CANONICAL}"
+# The previous domain. It is still routed to the Worker only to be redirected.
+LEGACY_ORIGIN="${LEGACY_ORIGIN:-https://andrewkaiserauer.com}"
+
+# A custom domain attached by the deploy that just ran can take a minute or two
+# to get its certificate, and until then every request fails at TLS. Wait for
+# it rather than failing the deploy on a race with certificate issuance.
+for attempt in $(seq 1 18); do
+	if curl --silent --output /dev/null "${ORIGIN}/"; then
+		break
+	fi
+	if [ "$attempt" = 18 ]; then
+		echo "verify: ${ORIGIN} never became reachable (DNS or certificate not ready)." >&2
+		exit 1
+	fi
+	echo "verify: attempt ${attempt}/18 — ${ORIGIN} not reachable yet" >&2
+	sleep 10
+done
 
 # ─────────────────────────────────────────────────────────────────────────
 # 1. Every route the static export emits still answers 200.
@@ -58,6 +76,14 @@ for route in /icon /opengraph-image; do
 		exit 1
 	fi
 done
+
+# The previous domain 301s to the canonical one with path and query intact —
+# that redirect is the only thing keeping old links to it alive.
+redirect="$(curl --silent --show-error --output /dev/null --write-out '%{http_code} %{redirect_url}' "${LEGACY_ORIGIN}/writing/agent-guardrails?from=verify")"
+if [ "$redirect" != "301 ${CANONICAL}/writing/agent-guardrails?from=verify" ]; then
+	echo "verify: ${LEGACY_ORIGIN} answered '${redirect}', expected a 301 to ${CANONICAL} preserving path and query" >&2
+	exit 1
+fi
 
 # ─────────────────────────────────────────────────────────────────────────
 # 3. THE POINT OF THIS SCRIPT: is the build we just made actually the build

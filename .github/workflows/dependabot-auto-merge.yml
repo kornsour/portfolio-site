@@ -6,8 +6,24 @@ permissions:
   pull-requests: write
 jobs:
   automerge:
+    # The merge must be enabled with a real token, not GITHUB_TOKEN: a push made
+    # with GITHUB_TOKEN starts no workflows, so Dependabot merges never ran CI on
+    # main and cloudflare-deploy.yml (workflow_run on CI) never deployed them.
+    # See docs/adr/0022-auto-merge-token-triggers-main-ci.md.
+    #
+    # This job runs as dependabot[bot], which can read only *Dependabot*
+    # secrets. AUTO_MERGE_TOKEN must therefore be stored under Settings →
+    # Secrets and variables → Dependabot, in addition to the Actions secret of
+    # the same name that auto-merge.yml uses:
+    #   gh secret set AUTO_MERGE_TOKEN --app dependabot -R kornsour/portfolio-site
+    #
+    # require-token: fail instead of silently falling back to GITHUB_TOKEN. A
+    # failed job only leaves the PR open for a hand merge, which does deploy.
+    #
     # No `secrets: inherit` — it would hand the called workflow every secret in
-    # this repo, not just the ones it needs. The reusable workflow declares no
-    # `secrets:` in its `workflow_call` and uses only `secrets.GITHUB_TOKEN`,
-    # which GitHub provides to called workflows automatically.
+    # this repo. Pass the one it needs by name.
     uses: kornsour/gh-automation/.github/workflows/dependabot-auto-merge.yml@8389ab51e28c3c75507f88009b78bf387ca811b1 # dependabot-auto-merge.yml pinned 2026-09-06
+    with:
+      require-token: true
+    secrets:
+      AUTOMERGE_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN }}
