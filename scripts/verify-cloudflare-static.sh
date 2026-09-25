@@ -36,7 +36,7 @@ done
 # ─────────────────────────────────────────────────────────────────────────
 # 1. Every route the static export emits still answers 200.
 # ─────────────────────────────────────────────────────────────────────────
-for route in / /writing/agent-guardrails /robots.txt /sitemap.xml /icon /opengraph-image /resume.pdf; do
+for route in / /writing/agent-guardrails /research /research/model-routing /research/model-routing-white-paper-v1.0.pdf /robots.txt /sitemap.xml /icon /opengraph-image /resume.pdf; do
 	status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' "${ORIGIN}${route}")"
 	if [ "$status" != "200" ]; then
 		echo "verify: ${route} returned ${status}, expected 200" >&2
