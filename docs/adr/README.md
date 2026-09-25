@@ -49,4 +49,5 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0018](./0018-portable-static-export.md) | Deploy a portable static export | Accepted |
 | [0019](./0019-resume-is-generated-from-one-career-record.md) | Generate the resume from one canonical career record | Proposed |
 | [0020](./0020-slim-pre-push-hook.md) | Pre-push guards main and scans for secrets; CI runs verify | Proposed |
-| [0021](./0021-auto-merge-pull-requests.md) | Auto-merge pull requests once required checks pass | Proposed |
+| [0021](./0021-auto-merge-pull-requests.md) | Auto-merge pull requests once required checks pass | Proposed; token amended by [ADR-0022](./0022-auto-merge-token-triggers-main-ci.md) |
+| [0022](./0022-auto-merge-token-triggers-main-ci.md) | Auto-merge with a token whose pushes trigger CI | Proposed; amends 0021 |

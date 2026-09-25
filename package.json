@@ -27,13 +27,13 @@
 	},
 	"dependencies": {
 		"@t3-oss/env-nextjs": "^0.13.11",
-		"next": "16.3.4",
+		"next": "16.3.5",
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
 		"zod": "^4.6.5"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.5.13",
+		"@biomejs/biome": "^2.5.14",
 		"@playwright/test": "^1.63.0",
 		"@tailwindcss/postcss": "^4",
 		"@types/node": "^26",

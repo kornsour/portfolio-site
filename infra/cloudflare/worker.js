@@ -43,14 +43,20 @@ export const SECURITY_HEADERS = {
  */
 export const EXTENSIONLESS_PNG = new Set(["/icon", "/opengraph-image"]);
 
-const CANONICAL_HOST = "andrewkaiserauer.com";
+/**
+ * Every other hostname the Worker answers on is 301'd here, which is also how
+ * the previous domain (andrewkaiserauer.com, still routed in wrangler.jsonc)
+ * keeps old links working.
+ */
+const CANONICAL_HOST = "akaiserauer.com";
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // One canonical host: www -> apex, preserving path and query. workers.dev
-    // is left alone so it stays usable for verification before DNS moves.
+    // One canonical host: www and the old domain -> apex, preserving path and
+    // query. workers.dev is left alone so it stays usable for verification
+    // before DNS moves.
     if (
       url.hostname !== CANONICAL_HOST &&
       !url.hostname.endsWith(".workers.dev")

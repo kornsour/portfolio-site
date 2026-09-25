@@ -20,6 +20,7 @@ describe("portfolio content", () => {
 			"inference-platform",
 			"llm-inference-performance",
 			"ops-triage-agent",
+			"model-routing",
 			"micro-ceo",
 			"design-system",
 		];

@@ -72,9 +72,29 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      # NOT github.token. GitHub performs an auto-merge as whoever enabled it,
+      # and a push made with GITHUB_TOKEN starts no workflows. With
+      # github.token here, every merge from 2026-09-13 (#59) on landed on main
+      # without `push` CI running, so cloudflare-deploy.yml's `workflow_run`
+      # on CI never fired and the site silently stopped deploying. See
+      # docs/adr/0022-auto-merge-token-triggers-main-ci.md.
+      #
+      # Fail loudly when the secret is missing, never fall back to
+      # github.token: the fallback is the silent no-deploy described above.
+      # Failing just leaves the PR for a hand merge, and a hand merge does
+      # trigger CI.
+      - name: Require the auto-merge token
+        env:
+          AUTO_MERGE_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN }}
+        run: |
+          if [ -z "${AUTO_MERGE_TOKEN:-}" ]; then
+            echo "::error::AUTO_MERGE_TOKEN is not set, so this PR was not queued for auto-merge. Merge it by hand, or add the secret (see docs/adr/0022-auto-merge-token-triggers-main-ci.md)." >&2
+            exit 1
+          fi
+
       - name: Enable auto-merge
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN }}
           # Passed through env, not interpolated into `run:`, so no event
           # field is ever spliced into the shell command.
           PR_URL: ${{ github.event.pull_request.html_url }}
