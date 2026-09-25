@@ -13,11 +13,19 @@
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
   },
-  // Routes over PROXIED records, not custom_domain: the apex already has an A
-  // record and Cloudflare refuses to create a custom-domain record over
-  // existing DNS. Routes are inert until the records are proxied, which makes
-  // the cutover a single reversible DNS toggle.
+  // akaiserauer.com is the canonical host. Its zone was empty when it was
+  // added, so it is attached as a custom domain: wrangler creates the proxied
+  // DNS record and the certificate itself, with nothing to toggle by hand.
+  //
+  // andrewkaiserauer.com is the previous domain and stays attached only so its
+  // links keep working: worker.js 301s every request on it to akaiserauer.com,
+  // preserving path and query. Its routes sit over PROXIED records rather than
+  // custom_domain because the apex already had an A record, and Cloudflare
+  // refuses to create a custom-domain record over existing DNS. Drop those two
+  // routes once nothing links to the old domain.
   "routes": [
+    { "pattern": "akaiserauer.com", "custom_domain": true },
+    { "pattern": "www.akaiserauer.com", "custom_domain": true },
     { "pattern": "andrewkaiserauer.com/*", "zone_name": "andrewkaiserauer.com" },
     { "pattern": "www.andrewkaiserauer.com/*", "zone_name": "andrewkaiserauer.com" }
   ],

@@ -121,6 +121,17 @@ export const projects: readonly Project[] = [
 		aiInfra: true,
 	},
 	{
+		name: "model-routing",
+		description:
+			"An experiment harness that measures what model routing actually saves: cost per completed task, not per token. Agent sessions run in sandboxed fixture repos, are graded by hidden tests with no LLM judge, and are pre-registered with hashed task sets, task-clustered bootstrap statistics, and a spend estimate and budget cap before anything runs.",
+		tech: ["Python", "Claude Code", "Statistics", "SQLite"],
+		links: [
+			{ url: "/research", label: "Read the research", internal: true },
+			{ url: "https://github.com/kornsour/model-routing", label: "View code" },
+		],
+		aiInfra: true,
+	},
+	{
 		name: "career-manager",
 		description:
 			"An agentic platform that runs a job search: a dozen specialized agents behind a single autonomy gate that routes every side-effectful action to execute-now or a human approval inbox, with versioned agent memory, cross-provider model fallback, and per-day token budgets enforced before spend.",
@@ -287,10 +298,16 @@ export const skillGroups: readonly SkillGroup[] = [
 	},
 ];
 
+/**
+ * Header navigation. Section links are root-relative ("/#about", not
+ * "#about") because the header also renders on /research and /writing pages,
+ * where a bare fragment would point at a section that page does not have.
+ */
 export const nav = [
-	{ label: "About", href: "#about" },
-	{ label: "Experience", href: "#experience" },
-	{ label: "Projects", href: "#projects" },
-	{ label: "Skills", href: "#skills" },
-	{ label: "Contact", href: "#contact" },
+	{ label: "About", href: "/#about" },
+	{ label: "Experience", href: "/#experience" },
+	{ label: "Projects", href: "/#projects" },
+	{ label: "Research", href: "/research" },
+	{ label: "Skills", href: "/#skills" },
+	{ label: "Contact", href: "/#contact" },
 ] as const;
