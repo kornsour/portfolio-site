@@ -43,3 +43,19 @@ test("theme toggle switches dark mode", async ({ page }) => {
 	const nowDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
 	expect(nowDark).toBe(!initiallyDark);
 });
+
+test("research papers are reachable, readable, and downloadable", async ({ page }) => {
+	await page.goto("/research");
+	await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+
+	await page.getByRole("link", { name: "Cheapest per token is not cheapest per task", exact: true }).click();
+	await expect(page).toHaveURL(/\/research\/model-routing$/);
+	await expect(page.getByRole("img", { name: /cost per completed task against pass rate/i })).toBeVisible();
+	const pdf = page.getByRole("link", { name: /Download the PDF \(16 pages\)/ });
+	const response = await page.request.get((await pdf.getAttribute("href")) ?? "");
+	expect(response.status()).toBe(200);
+
+	// The pre-registration must never read as a result.
+	await page.goto("/research/route-on-evidence");
+	await expect(page.getByRole("note")).toContainText("not yet registered and not yet run");
+});

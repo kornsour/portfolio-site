@@ -28,7 +28,7 @@ export default function OpengraphImage() {
 					{person.headline}
 				</div>
 			</div>
-			<div style={{ display: "flex", fontSize: 26, color: "#71717a" }}>andrewkaiserauer.com</div>
+			<div style={{ display: "flex", fontSize: 26, color: "#71717a" }}>akaiserauer.com</div>
 		</div>,
 		size,
 	);

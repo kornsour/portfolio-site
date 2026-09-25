@@ -1,6 +1,6 @@
 name: Cloudflare deploy
 
-# andrewkaiserauer.com is served by the `portfolio-edge` Worker (infra/cloudflare),
+# akaiserauer.com is served by the `portfolio-edge` Worker (infra/cloudflare),
 # which uploads the static export from out/. Until this workflow existed that
 # upload was a manual `wrangler deploy` nobody was reminded to run, so a green
 # main meant the code was correct — not that it was live. The site sat two
@@ -10,6 +10,12 @@ on:
   # Deploy only after CI has actually gone green on main. A plain
   # `push: branches: [main]` trigger would race CI and could publish a build
   # that the test suite is in the middle of failing.
+  #
+  # This only fires if CI actually runs on main, which means the merge must not
+  # be made with GITHUB_TOKEN: GitHub starts no workflows for pushes made with
+  # that token. From #59 (2026-09-13) to the fix in ADR-0022, auto-merge used
+  # it, CI stopped running on main, and this trigger went quiet. (The "Push on
+  # main" runs from that period are CodeQL default setup, not CI.)
   workflow_run:
     workflows: [CI]
     types: [completed]
@@ -57,7 +63,7 @@ jobs:
         # looks deployed.
         run: |
           if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
-            echo "::error::CLOUDFLARE_API_TOKEN is not set. Add it under Settings → Secrets and variables → Actions (see infra/cloudflare/README.md)." >&2
+            echo "::error::CLOUDFLARE_API_TOKEN is not set. Add it under Settings → Secrets and variables → Actions; required token permissions are in infra/cloudflare/README.md (\"Deploy credentials\")." >&2
             exit 1
           fi
 
