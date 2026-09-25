@@ -79,8 +79,9 @@ export interface Paper {
 // Deliberately topic-neutral: the section is for any research, not one field.
 // What a particular study is about belongs in that paper's own `summary`.
 export const researchHeading = "Papers and experiments";
-export const researchIntro =
-	"Independent research I run and write up. Each paper has a readable summary here and the full PDF to download.";
+/** Meta description only; the page itself shows a search box instead of an intro. */
+export const researchDescription =
+	"Independent research I run and write up. Each paper has a readable summary and the full PDF to download.";
 
 // ─── Figures ──────────────────────────────────────────────────────────────
 // The white paper's three charts, redrawn as SVG from the numbers in its own

@@ -2,8 +2,27 @@ import Link from "next/link";
 import { ArrowRightIcon } from "@/components/icons";
 import type { Paper } from "@/content/research";
 
+/** The fields a card renders. Kept small: the search passes these to the client. */
+export type PaperCardData = Pick<
+	Paper,
+	"slug" | "kind" | "title" | "summary" | "status" | "date"
+> & {
+	pdf: Pick<Paper["pdf"], "pages">;
+};
+
+export function toCardData(paper: Paper): PaperCardData {
+	const { slug, kind, title, summary, status, date } = paper;
+	return { slug, kind, title, summary, status, date, pdf: { pages: paper.pdf.pages } };
+}
+
 /** One paper in a list: the index page and the home-page section share it. */
-export function PaperCard({ paper, headingLevel = 2 }: { paper: Paper; headingLevel?: 2 | 3 }) {
+export function PaperCard({
+	paper,
+	headingLevel = 2,
+}: {
+	paper: PaperCardData;
+	headingLevel?: 2 | 3;
+}) {
 	const Heading = headingLevel === 2 ? "h2" : "h3";
 	return (
 		<article className="flex h-full flex-col rounded-lg border border-zinc-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">

@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { PaperCard } from "@/components/research/paper-card";
+import { toCardData } from "@/components/research/paper-card";
+import { ResearchSearch } from "@/components/research/research-search";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { papers, researchHeading, researchIntro } from "@/content/research";
+import { papers, researchDescription, researchHeading } from "@/content/research";
+import { searchText } from "@/lib/search";
 
 const title = "Research";
 
 export const metadata: Metadata = {
 	title,
-	description: researchIntro,
+	description: researchDescription,
 	alternates: { canonical: "/research" },
-	openGraph: { type: "website", url: "/research", title, description: researchIntro },
+	openGraph: { type: "website", url: "/research", title, description: researchDescription },
 };
 
 export default function ResearchIndex() {
@@ -30,16 +32,12 @@ export default function ResearchIndex() {
 				<h1 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
 					{researchHeading}
 				</h1>
-				<p className="mt-6 max-w-3xl text-lg leading-relaxed text-zinc-700 dark:text-zinc-300">
-					{researchIntro}
-				</p>
-				<ul className="mt-12 grid gap-5 md:grid-cols-2">
-					{papers.map((paper) => (
-						<li key={paper.slug}>
-							<PaperCard paper={paper} />
-						</li>
-					))}
-				</ul>
+				<ResearchSearch
+					entries={papers.map((paper) => ({
+						paper: toCardData(paper),
+						haystack: searchText(paper),
+					}))}
+				/>
 			</main>
 			<SiteFooter />
 		</div>
