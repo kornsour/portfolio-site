@@ -13,7 +13,7 @@ name: Auto-merge
 # INLINED, NOT REUSABLE: the Lurking-Walrus repos call
 # Lurking-Walrus/.github-private's auto-merge-reusable.yml. This repository is
 # public and owned by `kornsour`, so it cannot call a private workflow in
-# another owner's repository, and kornsour/gh-automation has no generic
+# another owner's repository, and lurking-walrus/gh-automation has no generic
 # auto-merge workflow (only dependabot-auto-merge.yml). The job below is that
 # reusable workflow's job, copied here.
 
