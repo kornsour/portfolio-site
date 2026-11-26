@@ -5,14 +5,14 @@ on:
     branches: [main]
 jobs:
   ci:
-    uses: kornsour/gh-automation/.github/workflows/ci.yml@8389ab51e28c3c75507f88009b78bf387ca811b1 # ci.yml pinned 2026-09-06
+    uses: lurking-walrus/gh-automation/.github/workflows/ci.yml@9755c5a968c76d19c7f54017d4bcd1b314810426 # main 2026-11-26
     with:
       migration-check: false
   infrastructure:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: opentofu/setup-opentofu@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2
         with:
           tofu_version: 1.12.5
       - name: Check OpenTofu formatting
