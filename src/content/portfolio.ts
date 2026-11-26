@@ -153,7 +153,7 @@ export const projects: readonly Project[] = [
 		tech: ["Python", "Kubernetes", "KServe", "KEDA", "Envoy AI Gateway"],
 		links: [
 			{
-				url: "https://kornsour.github.io/inference-platform/",
+				url: "https://lurking-walrus.github.io/inference-platform/",
 				label: "View site",
 			},
 			{
